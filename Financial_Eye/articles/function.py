@@ -68,9 +68,9 @@ def getArticleDetailsByUrl(url):
     elif "BBC" in title:
         source = "BBC"
         tag = soup.find("div", attrs={"class": "date date--v2"})
-        #print("A")
+        print("A")
         date = tag.get_text()
-        #print("B")
+        print("B")
         #print(date)
         #tag = soup.find("span", attrs={"class": "time"})
         #date += " " + tag.get_text()
