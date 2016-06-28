@@ -11,6 +11,9 @@ import android.database.DataSetObserver;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -23,12 +26,22 @@ import android.widget.ArrayAdapter;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.appindexing.Action;
 import com.google.android.gms.appindexing.AppIndex;
 import com.google.android.gms.common.api.GoogleApiClient;
 
+import com.loopj.android.http.*;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+
+import cz.msebera.android.httpclient.Header;
 
 public class MainActivity extends Activity
         implements NavigationDrawerFragment.NavigationDrawerCallbacks {
@@ -64,6 +77,8 @@ public class MainActivity extends Activity
         // ATTENTION: This was auto-generated to implement the App Indexing API.
         // See https://g.co/AppIndexing/AndroidStudio for more information.
         client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
+
+
     }
 
     @Override
@@ -161,48 +176,105 @@ public class MainActivity extends Activity
             return fragment;
         }
 
+        ArrayList<Article> articles = null;
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
             View rootView = inflater.inflate(R.layout.fragment_main, container, false);
 
-            ListView lv = (ListView) rootView.findViewById(R.id.listView);
-            final ArrayList<String> articles = new ArrayList<String>();
-            articles.add("a");
-            articles.add("a");
-            articles.add("a");
-            articles.add("a");
-            articles.add("a");
-            articles.add("a");
-            articles.add("a");
-            articles.add("a");
-            articles.add("a");
-            articles.add("a");
-
-            lv.setAdapter(new UsersAdapter(getActivity(), articles));
+            final ListView lv = (ListView) rootView.findViewById(R.id.listView);
 
             lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                     Intent i = new Intent(parent.getContext(), NewsActivity.class);
+                    i.putExtra("article", articles.get(position));
                     parent.getContext().startActivity(i);
+                }
+            });
+
+            final Handler h = new Handler() {
+                @Override
+                public void handleMessage(Message msg) {
+                    super.handleMessage(msg);
+
+                    articles = (ArrayList<Article>) msg.obj;
+                    lv.setAdapter(new UsersAdapter(getActivity(), articles));
+
+                    //((TextView) MainActivity.this.findViewById(R.id.tttt)).setText(arts.get(0).getContent());
+                }
+            };
+
+            AsyncHttpClient c = new AsyncHttpClient();
+        /*c.get("http://137.43.93.133:8000/articles/article_api_list/?format=json", new AsyncHttpResponseHandler() {
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
+                h.sendMessage(Message.obtain(h,1,new String(responseBody)));
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
+                Toast.makeText(MainActivity.this, new String(responseBody), Toast.LENGTH_LONG).show();
+            }
+        });*/
+
+            c.get("http://137.43.93.133:8000/articles/article_api_list/?format=json", new JsonHttpResponseHandler() {
+                @Override
+                public void onSuccess(int statusCode, Header[] headers, JSONArray response) {
+                    super.onSuccess(statusCode, headers, response);
+
+                    int size = response.length();
+                    ArrayList<Article> articles = new ArrayList<Article>();
+                    Article art;
+                    JSONObject obj;
+                    for (int i = 0; i < size; i++) {
+                        art = new Article();
+
+                        try {
+                            obj = response.getJSONObject(i);
+                            art.setContent(obj.getString("Content"));
+                            art.setDatetime(obj.getString("DateTime"));
+                            art.setHeadline(obj.getString("Headline"));
+                            art.setSubHeadline(obj.getString("SubHeadline"));
+                            art.setUrl(obj.getString("Url"));
+                            art.setKeywords(obj.getString("Keywords"));
+                            art.setType(obj.getString("Type"));
+                            art.setSource(obj.getString("Source"));
+
+                            articles.add(art);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+
+                    h.sendMessage(Message.obtain(h,1,articles));
+                }
+
+
+                @Override
+                public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
+                    super.onFailure(statusCode, headers, responseString, throwable);
                 }
             });
 
             return rootView;
         }
 
-        public class UsersAdapter extends ArrayAdapter<String> {
-            public UsersAdapter(Context context, ArrayList<String> users) {
+        public class UsersAdapter extends ArrayAdapter<Article> {
+            public UsersAdapter(Context context, ArrayList<Article> users) {
                 super(context, 0, users);
             }
 
             @Override
             public View getView(int position, View convertView, ViewGroup parent) {
                 View v = convertView;
+
                 if (v == null) {
                     v = LayoutInflater.from(getActivity()).inflate(R.layout.listview_item_main, null);
                 }
+
+                ((TextView)v.findViewById(R.id.textView2)).setText(getItem(position).getHeadline());
+
                 return v;
             }
         }

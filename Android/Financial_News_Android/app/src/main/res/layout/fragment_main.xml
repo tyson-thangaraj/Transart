@@ -16,7 +16,9 @@
         android:background="#d32f2f"
         android:id="@+id/linearLayout"
         android:gravity="center_vertical"
-        android:paddingLeft="10dp">
+        android:paddingLeft="10dp"
+        android:visibility="visible"
+        >
 
         <ImageView
             android:layout_width="50dp"
@@ -40,5 +42,24 @@
         android:layout_height="wrap_content"
         android:id="@+id/listView"
         android:layout_below="@+id/linearLayout"
-        android:layout_centerHorizontal="true" />
+        android:layout_centerHorizontal="true"
+        android:visibility="visible"/>
+
+    <android.support.v4.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone"
+        >
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Financial Eye"
+            android:id="@+id/tttt"
+            android:textSize="25sp"
+            android:textIsSelectable="true"
+            android:textColor="#000000" />
+
+    </android.support.v4.widget.NestedScrollView>
+
 </RelativeLayout>
