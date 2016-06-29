@@ -13,6 +13,7 @@ class Article(models.Model):
     Content = models.TextField(blank=True)
     Type = models.CharField(max_length=100, db_index=True)
     Source = models.CharField(max_length=100)
+    Image = models.URLField(max_length=400,blank=True,null=True)
 
     def was_published_recently(self):
         return self.DateTime >= timezone.now() - datetime.timedelta(days=1)

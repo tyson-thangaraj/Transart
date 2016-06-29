@@ -26,24 +26,13 @@ def scrapAll():
         have_lock = my_lock.acquire(blocking=False)
         if have_lock:
             print(lock_id + " lock acquired!")
-           # scrapRSSFeed('feed://feeds.bbci.co.uk/news/rss.xml')
-            #scrapRSSFeed('feed://feeds.bbci.co.uk/news/world/rss.xml')
-            # scrapRSSFeed('feed://feeds.bbci.co.uk/news/uk/rss.xml')
-            # scrapRSSFeed('feed://feeds.bbci.co.uk/news/world/europe/rss.xml')
 
-            #scrapRSSFeed('http://newsrss.bbc.co.uk/rss/newsonline_uk_edition/business/rss.xml')
             scrapRSSFeed('http://www.chinadaily.com.cn/rss/world_rss.xml')
-            #scrapRSSFeed('feed://feeds.bbci.co.uk/news/business/rss.xml')
-            # scrapRSSFeed('feed://feeds.bbci.co.uk/news/politics/rss.xml')
-            # scrapRSSFeed('feed://feeds.bbci.co.uk/news/health/rss.xml')
-            # scrapRSSFeed('feed://feeds.bbci.co.uk/news/education/rss.xml')
-            # scrapRSSFeed('feed://feeds.bbci.co.uk/news/science_and_environment/rss.xml')
-            # scrapRSSFeed('feed://feeds.bbci.co.uk/news/technology/rss.xml')
-            # scrapRSSFeed('feed://feeds.bbci.co.uk/news/entertainment_and_arts/rss.xml')
+            scrapRSSFeed('http://feeds.bbci.co.uk/news/business/rss.xml')
+            scrapRSSFeed('http://feeds.nytimes.com/nyt/rss/Business')
+            scrapRSSFeed('http://feeds.reuters.com/reuters/businessNews')
+            #scrapRSSFeed('http://rss.sina.com.cn/roll/finance/hot_roll.xml')
 
-            #scrapRSSFeed('http://www.irishtimes.com/cmlink/news-1.1319192')
-            # scrapRSSFeed('http://www.irishtimes.com/cmlink/business-1.1319195')
-            # scrapRSSFeed('http://www.irishtimes.com/cmlink/sport-1.1319194')
 
         else:
             print(lock_id + " is locked by another worker!")
@@ -70,6 +59,11 @@ def scrapRSSFeed(feed):
         if "bbc" in item['link']:
             url = item['id']
             # url = url.replace(".co.uk/", ".com/")
+        elif "nytimes" in item['link']:
+            url = item['guid']
+        elif "sina" in item['link']:
+            url=item['link']
+            url = url.split('=')[1]
         else:
             url = item['link']
 
@@ -79,12 +73,15 @@ def scrapRSSFeed(feed):
         if '?feedType=RSS&feedName=topNews' in url:
             url = url.replace('?feedType=RSS&feedName=topNews', '')
 
+        # if "?nytimes" in url:
+        #     url = urllib.parse.quote(url, '/:')
         url = urllib.parse.quote(url, '/:')
 
         try:
             get_object_or_404(Article, url=url)
         except:
             try:
+                print("create started.....")
                 article = createArticleByUrl(url)
                 article.save()
 
