@@ -53,7 +53,7 @@ REST_FRAMEWORK = {
         'rest_framework.renderers.JSONRenderer',
         'rest_framework.renderers.BrowsableAPIRenderer',
     ),
-    'PAGE_SIZE': 10,
+    'PAGE_SIZE': 0,
 }
 
     # 'COMPACT_JSON': False,

@@ -29,6 +29,13 @@ class ArticleList(generics.ListCreateAPIView):
     filter_fields = ('Source',)
     ordering_fields  = ('DateTime',)
     ordering = ('-DateTime',)
+    
+    def get_queryset(self):
+        queryset = Article.objects.all()
+        datetime = self.request.query_params.get('datetime', None)
+        if datetime is not None:
+            queryset = queryset.filter(DateTime__gt=datetime)
+        return queryset
 
 
 class ArticleDetail(generics.RetrieveUpdateDestroyAPIView):
