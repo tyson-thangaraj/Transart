@@ -1,13 +1,34 @@
-# from snippets.models import Snippet
-# from snippets.serializers import SnippetSerializer
+
+from django.shortcuts import render
+
+# Create your views here.
+
+import urllib
+import json
+import copy
+
+from django.http import HttpResponse
+
+#from django.shortcuts import render, get_object_or_404
+from django.utils.timezone import utc
+from datetime import timedelta, datetime
+#from rest_framework.decorators import api_view
+#from rest_framework import status
+from rest_framework.response import Response
+
 from articles.models import Article
 from articles.serializers import ArticleSerializer
 from rest_framework import generics
+from rest_framework import filters
 
 
 class ArticleList(generics.ListCreateAPIView):
     queryset = Article.objects.all()
     serializer_class = ArticleSerializer
+    filter_backends = (filters.OrderingFilter,filters.DjangoFilterBackend,)
+    filter_fields = ('Source',)
+    ordering_fields  = ('DateTime',)
+    ordering = ('-DateTime',)
 
 
 class ArticleDetail(generics.RetrieveUpdateDestroyAPIView):
@@ -16,29 +37,6 @@ class ArticleDetail(generics.RetrieveUpdateDestroyAPIView):
 
 
 
-
-
-
-
-
-from django.shortcuts import render
-
-# # Create your views here.
-
-# import urllib
-# import json
-# import copy
-
-# from django.http import HttpResponse
-# from articles.models import Article
-# from articles.serializers import ArticleSerializer
-
-# from django.shortcuts import render, get_object_or_404
-# from django.utils.timezone import utc
-# from datetime import timedelta, datetime
-# from rest_framework.decorators import api_view
-# from rest_framework import status
-# from rest_framework.response import Response
 
 def article_index(request):
     return HttpResponse("Hello, world. You're at the articles index view.")

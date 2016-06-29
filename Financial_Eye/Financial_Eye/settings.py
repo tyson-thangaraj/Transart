@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'articles',
     'rest_framework',
+    'crispy_forms',
     'djcelery',
     'django_extensions',
     'homepage',
