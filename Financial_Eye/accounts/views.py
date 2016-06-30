@@ -44,7 +44,6 @@ class UserList(generics.ListCreateAPIView):
             return queryset
 
 class CreateUser(generics.ListCreateAPIView):
-    print("begin")
     queryset = Users.objects.all()
     serializer_class = UserSerializer
     def get_queryset(self):
@@ -70,7 +69,7 @@ class UserDetail(generics.RetrieveUpdateDestroyAPIView):
 def createUserObject(username, password, email,firstname, lastname, address, telephone, datejoined):
     print([username, password, email,firstname, lastname, address, telephone, datejoined])
     try:
-        article = Users(Username=username,
+        user = Users(Username=username,
                         Password=password,
                         Email=email,
                         FirstName = firstname,
@@ -81,4 +80,4 @@ def createUserObject(username, password, email,firstname, lastname, address, tel
 
     except Exception as err:
                 print("In createArticleObject():"+ err)
-    return article
+    return user
