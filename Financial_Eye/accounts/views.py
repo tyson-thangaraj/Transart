@@ -32,22 +32,32 @@ class UserList(generics.ListCreateAPIView):
         queryset = Users.objects.all()
         username = self.request.query_params.get('username', None)
         password = self.request.query_params.get('password', None)
-        if username and password is not None:
-            queryset = queryset.filter(Username=username, Password=password)
-        return queryset
+        flag = self.request.query_params.get('flag', None)
+        # print(flag)
+        # print(type(flag))
+        if flag == "1":
+            newuser = Users(Username=username, Password=password)
+            newuser.save()
+        elif flag == "2":
+            if username and password is not None:
+                queryset = queryset.filter(Username=username, Password=password)
+            return queryset
 
 class CreateUser(generics.ListCreateAPIView):
     print("begin")
     queryset = Users.objects.all()
     serializer_class = UserSerializer
     def get_queryset(self):
-        #queryset = Users.objects.all()
+        queryset = Users.objects.all()
         print("hello")
         username = self.request.query_params.get('username', None)
         password = self.request.query_params.get('password', None)
         newuser = Users(Username=username, Password=password)
-        newuser.save()
-        print("created success!")
+        if newuser.save():
+            print("created success!")
+            queryset = queryset.filter(Username=username, Password=password)
+            return queryset
+
         # if username and password is not None:
         #     queryset = queryset.filter(Username=username, Password=password)
         # return queryset
