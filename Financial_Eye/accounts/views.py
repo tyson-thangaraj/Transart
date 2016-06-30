@@ -9,6 +9,8 @@ from django.utils.timezone import utc
 from rest_framework.decorators import api_view
 from rest_framework import status
 from rest_framework.response import Response
+from rest_framework.renderers import JSONRenderer
+from rest_framework.parsers import JSONParser
 
 from accounts.models import Users
 from accounts.serializers import UserSerializer
@@ -18,44 +20,33 @@ import django_filters
 
 # Create your views here.
 
-@api_view(['GET', 'POST'])
-def UserList(request, format=None):
-    """
-    List all articles, or create a new Article.
-    """
-    if request.method == 'GET':
-        users = Users.objects.all()
-        serializer = UserSerializer(users, many=True)
-        return Response(serializer.data)
+class UserList(generics.ListCreateAPIView):
+    queryset = Users.objects.all()
+    serializer_class = UserSerializer
 
-    elif request.method == 'POST':
-        serializer = UserSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+class UserDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Users.objects.all()
+    serializer_class = UserSerializer
 
-@api_view(['GET', 'PUT', 'DELETE'])
-def UserDetail(request, pk, format=None):
-    """
-    Retrieve, update or delete a article instance.
-    """
-    try:
-        users = Users.objects.get(pk=pk)
-    except Users.DoesNotExist:
-        return Response(status=status.HTTP_404_NOT_FOUND)
-
-    if request.method == 'GET':
-        serializer = UserSerializer(users)
-        return Response(serializer.data)
-
-    elif request.method == 'PUT':
-        serializer = UserSerializer(users, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    elif request.method == 'DELETE':
-        users.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+# class ArticleFilter(filters.FilterSet):
+#     latestDatetime = django_filters.IsoDateTimeFilter(name="DateTime", lookup_expr='gt')
+#     Source = django_filters.CharFilter(lookup_expr='iexact')
+#     class Meta:
+#         model = Article
+#         fields = ['latestDatetime']
+#
+# class ArticleList(generics.ListCreateAPIView):
+#     queryset = Article.objects.all()
+#     serializer_class = ArticleSerializer
+#     filter_backends = (filters.OrderingFilter,filters.DjangoFilterBackend,)
+#     filter_class = ArticleFilter
+#     #filter_fields = ('Source',)
+#     ordering_fields  = ('DateTime',)
+#     ordering = ('-DateTime',)
+#
+#     # def get_queryset(self):
+#     #     queryset = Article.objects.all()
+#     #     datetime = self.request.query_params.get('datetime', None)
+#     #     if datetime is not None:
+#     #         queryset = queryset.filter(DateTime__gt=datetime)
+#     #     return queryset
