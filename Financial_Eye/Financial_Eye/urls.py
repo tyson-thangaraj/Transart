@@ -26,5 +26,5 @@ urlpatterns = [
     #url(r'^debug', 'homepage.views.home_debug', name='home_debug'),
     url(r'^admin/', include(admin.site.urls)),
     url(r'^articles/', include('articles.urls')),
-
+    url(r'^accounts/', include('accounts.urls')),
 ]
