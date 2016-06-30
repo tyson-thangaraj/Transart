@@ -24,29 +24,51 @@ class UserList(generics.ListCreateAPIView):
     queryset = Users.objects.all()
     serializer_class = UserSerializer
 
+    def get_queryset(self):
+        """
+        Optionally restricts the returned purchases to a given user,
+        by filtering against a `username` query parameter in the URL.
+        """
+        queryset = Users.objects.all()
+        username = self.request.query_params.get('username', None)
+        password = self.request.query_params.get('password', None)
+        if username and password is not None:
+            queryset = queryset.filter(Username=username, Password=password)
+        return queryset
+
+class CreateUser(generics.ListCreateAPIView):
+    print("begin")
+    queryset = Users.objects.all()
+    serializer_class = UserSerializer
+    def get_queryset(self):
+        #queryset = Users.objects.all()
+        print("hello")
+        username = self.request.query_params.get('username', None)
+        password = self.request.query_params.get('password', None)
+        newuser = Users(Username=username, Password=password)
+        newuser.save()
+        print("created success!")
+        # if username and password is not None:
+        #     queryset = queryset.filter(Username=username, Password=password)
+        # return queryset
+
+
 class UserDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Users.objects.all()
     serializer_class = UserSerializer
 
-# class ArticleFilter(filters.FilterSet):
-#     latestDatetime = django_filters.IsoDateTimeFilter(name="DateTime", lookup_expr='gt')
-#     Source = django_filters.CharFilter(lookup_expr='iexact')
-#     class Meta:
-#         model = Article
-#         fields = ['latestDatetime']
-#
-# class ArticleList(generics.ListCreateAPIView):
-#     queryset = Article.objects.all()
-#     serializer_class = ArticleSerializer
-#     filter_backends = (filters.OrderingFilter,filters.DjangoFilterBackend,)
-#     filter_class = ArticleFilter
-#     #filter_fields = ('Source',)
-#     ordering_fields  = ('DateTime',)
-#     ordering = ('-DateTime',)
-#
-#     # def get_queryset(self):
-#     #     queryset = Article.objects.all()
-#     #     datetime = self.request.query_params.get('datetime', None)
-#     #     if datetime is not None:
-#     #         queryset = queryset.filter(DateTime__gt=datetime)
-#     #     return queryset
+def createUserObject(username, password, email,firstname, lastname, address, telephone, datejoined):
+    print([username, password, email,firstname, lastname, address, telephone, datejoined])
+    try:
+        article = Users(Username=username,
+                        Password=password,
+                        Email=email,
+                        FirstName = firstname,
+                        LastName = lastname,
+                        Address = address,
+                        Telephone = telephone,
+                        DateJoined = datejoined)
+
+    except Exception as err:
+                print("In createArticleObject():"+ err)
+    return article
