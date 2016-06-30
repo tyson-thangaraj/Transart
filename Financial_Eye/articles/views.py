@@ -20,22 +20,30 @@ from articles.models import Article
 from articles.serializers import ArticleSerializer
 from rest_framework import generics
 from rest_framework import filters
+import django_filters
 
+class ArticleFilter(filters.FilterSet):
+    latestDatetime = django_filters.IsoDateTimeFilter(name="DateTime", lookup_expr='gt')
+    Source = django_filters.CharFilter(lookup_expr='iexact')
+    class Meta:
+        model = Article
+        fields = ['latestDatetime']
 
 class ArticleList(generics.ListCreateAPIView):
     queryset = Article.objects.all()
     serializer_class = ArticleSerializer
     filter_backends = (filters.OrderingFilter,filters.DjangoFilterBackend,)
-    filter_fields = ('Source',)
+    filter_class = ArticleFilter
+    #filter_fields = ('Source',)
     ordering_fields  = ('DateTime',)
     ordering = ('-DateTime',)
     
-    def get_queryset(self):
-        queryset = Article.objects.all()
-        datetime = self.request.query_params.get('datetime', None)
-        if datetime is not None:
-            queryset = queryset.filter(DateTime__gt=datetime)
-        return queryset
+    # def get_queryset(self):
+    #     queryset = Article.objects.all()
+    #     datetime = self.request.query_params.get('datetime', None)
+    #     if datetime is not None:
+    #         queryset = queryset.filter(DateTime__gt=datetime)
+    #     return queryset
 
 
 class ArticleDetail(generics.RetrieveUpdateDestroyAPIView):
