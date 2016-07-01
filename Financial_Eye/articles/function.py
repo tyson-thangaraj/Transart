@@ -8,6 +8,7 @@ import pytz
 
 from articles.models import Article
 import newspaper
+from http.cookiejar import CookieJar
 
 def createArticleObject(title, subtitle, body, date, keywords, url, type, source, image):
     #print([title, subtitle, body, date, keywords, url, type, source, image])
@@ -62,6 +63,13 @@ def getArticleDetailsByUrl(url):
             date = local_dt.astimezone(pytz.utc)
     elif "nytimes" in url:
         source="The New York Times"
+        cj = CookieJar()
+        opener = urllib.request.build_opener(urllib.request.HTTPCookieProcessor(cj))
+        p = opener.open(url).read()
+        soup = BeautifulSoup(p,"html.parser")
+        soup.prettify()
+        tag = soup.find("meta", attrs={"name": "ptime"}).get('content')
+        date = datetime.strptime(tag, "%Y%m%d%H%M%S")
     elif "reuters" in url:
         source="Reuters"
     elif "ifeng" in url:

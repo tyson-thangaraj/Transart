@@ -3,20 +3,36 @@ package news.com.financial_news_android;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.raizlabs.android.dbflow.annotation.Column;
+import com.raizlabs.android.dbflow.annotation.PrimaryKey;
+import com.raizlabs.android.dbflow.annotation.Table;
+import com.raizlabs.android.dbflow.structure.BaseModel;
+
 /**
  * Created by ping on 2016/6/28.
  */
-public class Article implements Parcelable {
+@Table(database = AppDatabase.class)
+public class Article extends BaseModel implements Parcelable {
+
+    @PrimaryKey(autoincrement = true)
+    long id;
+
+    @Column
     private String headline;
 
+    @Column
     private String subHeadline;
 
+    @Column
     private String url;
 
+    @Column
     private String datetime;
 
+    @Column
     private String keywords;
 
+    @Column
     private String content;
 
     public String getHeadline() {
@@ -75,6 +91,7 @@ public class Article implements Parcelable {
         this.type = type;
     }
 
+    @Column
     private String type;
 
     public String getSource() {
@@ -85,6 +102,7 @@ public class Article implements Parcelable {
         this.source = source;
     }
 
+    @Column
     private String source;
 
 
