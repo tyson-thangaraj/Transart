@@ -3,11 +3,11 @@ from django.db import models
 # Create your models here.
 
 class Users(models.Model):
-    Username = models.CharField(max_length=50)
+    Username = models.CharField(max_length=50, primary_key=True)
     Password = models.CharField(max_length=50)
-    Email = models.EmailField(blank=True)
-    FirstName = models.CharField(max_length=50, blank=True)
-    LastName = models.CharField(max_length=50, blank=True)
-    Address = models.CharField(max_length=500, blank=True)
-    Telephone = models.CharField(max_length=20, blank=True)
-    DateJoined = models.DateTimeField('RegisterDate', blank=True)
+    Email = models.EmailField(blank=True, null=True)
+    FirstName = models.CharField(max_length=50, blank=True, null=True)
+    LastName = models.CharField(max_length=50, blank=True, null=True)
+    Address = models.CharField(max_length=500, blank=True, null=True)
+    Telephone = models.CharField(max_length=20, blank=True, null=True)
+    DateJoined = models.DateTimeField('RegisterDate', blank=True, null=True)
