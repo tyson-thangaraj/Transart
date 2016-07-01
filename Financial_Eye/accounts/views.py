@@ -96,7 +96,7 @@ def user_list(request, format=None):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        
+
     users = Users.objects.all()
     serializer = UserSerializer(users, many=True)
     return Response(serializer.data)
@@ -109,50 +109,32 @@ class CreateUser(generics.ListCreateAPIView):
 
     print("hello")
 
-    # def list(self, request):
-    #     # Note the use of `get_queryset()` instead of `self.queryset`
-    #     queryset = self.get_queryset()
-    #     serializer = UserSerializer(queryset, many=True)
-    #     return Response(serializer.data)
 
-    # def create(self, request, *args, **kwargs):
-    #     InsertDict = {}
-    #     print('|||||||||||||||||||||||||||||||||||||||')
-    #     print(request.data)
-    #     print('|||||||||||||||||||||||||||||||||||||||')
-    #     print(request.query_params)
-    #     serializer = self.get_serializer(data=request.data)
-    #     serializer.is_valid(raise_exception=True)
-    #     self.perform_create(serializer)
-    #     headers = self.get_success_headers(serializer.data)
-    #     return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+    def create(self, request, *args, **kwargs):
+        print(request.data)
+        print('|||||||||||||||||||||||||||||||||||||||')
+        print(request.query_params)
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
-    def create(self, request, username, password):
-        username = self.request.query_params.get('username', None)
-        password = self.request.query_params.get('password', None)
-        print("hello00000000000000000000")
-        user = Users(Username=username, Password=password)
-        serializer = UserSerializer(user)
-        if serializer.is_valid():
-            serializer.save()
-            print("##################################################")
-            return Response(serializer.data)
-        else:
-            print('++++++++++++++++++++++++++++++++++++++++++++++++++==')
-            print(serializer.errors)
-            return render(request, 'userlist')
-                
-
-    # def get_queryset(self):
-    #     queryset = Users.objects.all()
-    #     print("hello")
+    # def create(self, request, username, password):
     #     username = self.request.query_params.get('username', None)
     #     password = self.request.query_params.get('password', None)
-    #     newuser = Users(Username=username, Password=password)
-    #     if newuser.save():
-    #         print("created success!")
-    #         queryset = queryset.filter(Username=username, Password=password)
-    #         return queryset
+    #     print("hello00000000000000000000")
+    #     user = Users(Username=username, Password=password)
+    #     serializer = UserSerializer(user)
+    #     if serializer.is_valid():
+    #         serializer.save()
+    #         print("##################################################")
+    #         return Response(serializer.data)
+    #     else:
+    #         print('++++++++++++++++++++++++++++++++++++++++++++++++++==')
+    #         print(serializer.errors)
+    #         return render(request, 'userlist')
+
 
 # class CreateUser(generics.ListCreateAPIView):
 #     queryset = Users.objects.all()
