@@ -39,7 +39,7 @@ def getArticleDetailsByUrl(url):
 
     title = article.title
     sub_title=article.meta_description
-    authors = article.authors
+    # authors = article.authors
     date = article.publish_date
 
     news_content = article.text
@@ -85,6 +85,15 @@ def getArticleDetailsByUrl(url):
         for tag in soup.find("div", attrs={"class": "box_con"}).find_all("p"):
             if "script" not in tag.get_text():
                 news_content += tag.get_text() + '\n'
+        
+        # translation
+        originalText = [title, sub_title, news_content]
+        translatedText = translate(originalText)
+
+        title = translatedText['translations'][0]['translatedText']
+        sub_title= translatedText['translations'][1]['translatedText']
+        news_content = translatedText['translations'][2]['translatedText']
+        
         keywords = extractKeywords(title)
     elif "sina" in url:
         page = urllib.request.urlopen(url).read()
@@ -95,6 +104,15 @@ def getArticleDetailsByUrl(url):
         for tag in soup.find("div", attrs={"id": "artibody"}).find_all("p"):
             if "JavaScript" not in tag.get_text():
                 news_content += tag.get_text() + '\n'
+        
+        # translation
+        originalText = [title, sub_title, news_content]
+        translatedText = translate(originalText)
+
+        title = translatedText['translations'][0]['translatedText']
+        sub_title= translatedText['translations'][1]['translatedText']
+        news_content = translatedText['translations'][2]['translatedText']
+
         keywords = extractKeywords(title)
 
     return [title, sub_title, news_content, date, keywords, source, image]
@@ -133,3 +151,18 @@ def load_stopwords():
     #turn list into set for faster search
     stop_words = set(stop_words)
     return stop_words
+
+# google translate API 
+def googleTranslate(text):
+    myKey = 'AIzaSyDB5M7vM-gnhG4jKWp6E4PT5Y3GhLAprlE'
+    service = build('translate', 'v2',
+            developerKey=myKey)
+
+    translatedText = service.translations().list(
+      source='zh',
+      target='en',
+      q = text
+      #q=['He said Brexit would "freeze the possibilities of investment in Great Britain or in Europe as a whole". He appealed to the UK prime minister and other EU leaders to ensure an orderly process for the British exit.', 'car']
+    ).execute()
+    
+    return translatedText

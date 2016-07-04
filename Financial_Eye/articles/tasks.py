@@ -14,6 +14,8 @@ import redis
 
 from articles.function import createArticleByUrl
 from articles.models import Article
+#------ google translate --------
+from googleapiclient.discovery import build
 
 #read RSS feed every 15mins
 #@periodic_task(run_every=crontab(minute='59,14,29,44'), time_limit=14 * 60, soft_time_limit=14 * 50 - 5, expires=60)
@@ -27,11 +29,11 @@ def scrapAll():
         if have_lock:
             print(lock_id + " lock acquired!")
 
-            #scrapRSSFeed('http://www.chinadaily.com.cn/rss/world_rss.xml')
-            #scrapRSSFeed('http://feeds.bbci.co.uk/news/business/rss.xml')
-            #scrapRSSFeed('http://feeds.nytimes.com/nyt/rss/Business')
-            #scrapRSSFeed('http://feeds.reuters.com/reuters/businessNews')
-            #scrapRSSFeed('http://rss.sina.com.cn/roll/finance/hot_roll.xml')
+            # scrapRSSFeed('http://www.chinadaily.com.cn/rss/world_rss.xml')
+            # scrapRSSFeed('http://feeds.bbci.co.uk/news/business/rss.xml')
+            # scrapRSSFeed('http://feeds.nytimes.com/nyt/rss/Business')
+            # scrapRSSFeed('http://feeds.reuters.com/reuters/businessNews')
+            scrapRSSFeed('http://rss.sina.com.cn/roll/finance/hot_roll.xml')
             #scrapRSSFeed('feed://rss.huanqiu.com/finance/view.xml')
             #scrapRSSFeed('http://news.baidu.com/n?cmd=1&class=finannews&tn=rss')
             scrapRSSFeed('http://www.people.com.cn/rss/finance.xml')
@@ -96,3 +98,5 @@ def scrapRSSFeed(feed):
                 print("Add New Article:" + article.Headline)
 
     print(feed + " Done!")
+
+
