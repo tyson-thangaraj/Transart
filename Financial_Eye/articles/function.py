@@ -9,6 +9,8 @@ import pytz
 from articles.models import Article
 import newspaper
 from http.cookiejar import CookieJar
+#------ google translate --------
+from googleapiclient.discovery import build
 
 def createArticleObject(title, subtitle, body, date, keywords, url, type, source, image):
     #print([title, subtitle, body, date, keywords, url, type, source, image])

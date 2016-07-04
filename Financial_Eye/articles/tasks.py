@@ -14,8 +14,7 @@ import redis
 
 from articles.function import createArticleByUrl
 from articles.models import Article
-#------ google translate --------
-from googleapiclient.discovery import build
+
 
 #read RSS feed every 15mins
 #@periodic_task(run_every=crontab(minute='59,14,29,44'), time_limit=14 * 60, soft_time_limit=14 * 50 - 5, expires=60)
