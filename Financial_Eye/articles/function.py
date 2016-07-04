@@ -88,7 +88,7 @@ def getArticleDetailsByUrl(url):
         
         # translation
         originalText = [title, sub_title, news_content]
-        translatedText = translate(originalText)
+        translatedText = googleTranslate(originalText)
 
         title = translatedText['translations'][0]['translatedText']
         sub_title= translatedText['translations'][1]['translatedText']
@@ -107,7 +107,7 @@ def getArticleDetailsByUrl(url):
         
         # translation
         originalText = [title, sub_title, news_content]
-        translatedText = translate(originalText)
+        translatedText = googleTranslate(originalText)
 
         title = translatedText['translations'][0]['translatedText']
         sub_title= translatedText['translations'][1]['translatedText']
