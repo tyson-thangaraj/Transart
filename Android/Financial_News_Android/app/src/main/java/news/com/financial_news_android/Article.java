@@ -35,6 +35,28 @@ public class Article extends BaseModel implements Parcelable {
     @Column
     private String content;
 
+    public String getImage() {
+        return image;
+    }
+
+    public void setImage(String image) {
+        this.image = image;
+    }
+
+    public String getLocalImage() {
+        return localImage;
+    }
+
+    public void setLocalImage(String localImage) {
+        this.localImage = localImage;
+    }
+
+    @Column
+    private String image;
+
+    @Column
+    private String localImage;
+
     public String getHeadline() {
         return headline;
     }
@@ -119,6 +141,7 @@ public class Article extends BaseModel implements Parcelable {
         out.writeString(headline);
         out.writeString(subHeadline);
         out.writeString(content);
+        out.writeString(image);
     }
 
     // this is used to regenerate your object. All Parcelables must have a CREATOR that implements these two methods
@@ -139,5 +162,6 @@ public class Article extends BaseModel implements Parcelable {
         headline = in.readString();
         subHeadline = in.readString();
         content = in.readString();
+        image = in.readString();
     }
 }

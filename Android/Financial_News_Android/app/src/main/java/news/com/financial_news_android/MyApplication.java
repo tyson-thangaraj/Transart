@@ -2,6 +2,8 @@ package news.com.financial_news_android;
 
 import android.app.Application;
 
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.raizlabs.android.dbflow.config.FlowConfig;
 import com.raizlabs.android.dbflow.config.FlowManager;
 
@@ -15,5 +17,9 @@ public class MyApplication extends Application {
         super.onCreate();
 
         FlowManager.init(new FlowConfig.Builder(this).build());
+
+        ImageLoaderConfiguration c = new ImageLoaderConfiguration.Builder(this).build();
+        ImageLoader.getInstance().init(c);
+
     }
 }

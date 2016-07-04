@@ -56,8 +56,7 @@
         android:layout_width="match_parent"
         android:layout_height="200dp"
         android:scaleType="fitXY"
-        android:id="@+id/imageView10"
-        android:src="@drawable/sample" />
+        android:id="@+id/imageView10" />
 
     <TextView
         android:layout_width="wrap_content"

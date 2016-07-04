@@ -113,17 +113,18 @@ public class Login extends AppCompatActivity implements LoaderCallbacks<Cursor> 
                 RequestParams rp = new RequestParams();
                 rp.add("username", mEmailView.getText().toString());
                 rp.add("password", mPasswordView.getText().toString());
-                rp.add("flag", "2");
                 rp.add("format", "json");
 
-                c.get("http://137.43.93.133:8000/articles/article_api_list/", rp, new JsonHttpResponseHandler() {
+                c.get("http://137.43.93.133:8000/accounts/login/", rp, new JsonHttpResponseHandler() {
                     @Override
                     public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                         super.onSuccess(statusCode, headers, response);
 
-//                        Intent i = new Intent(Login.this, MainActivity.class);
-//                        Login.this.startActivity(i);
-//                        Login.this.finish();
+                        PreferenceManager.getDefaultSharedPreferences(Login.this).edit().putString("user", mEmailView.getText().toString()).commit();
+
+                        Intent i = new Intent(Login.this, MainActivity.class);
+                        Login.this.startActivity(i);
+                        Login.this.finish();
 
                     }
 
@@ -152,10 +153,9 @@ public class Login extends AppCompatActivity implements LoaderCallbacks<Cursor> 
                 RequestParams rp = new RequestParams();
                 rp.add("username", mEmailView.getText().toString());
                 rp.add("password", mPasswordView.getText().toString());
-                rp.add("flag", "1");
                 rp.add("format", "json");
 
-                c.get("http://137.43.93.133:8000/accounts/users/", rp, new JsonHttpResponseHandler() {
+                c.get("http://137.43.93.133:8000/accounts/register/", rp, new JsonHttpResponseHandler() {
                     @Override
                     public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                         super.onSuccess(statusCode, headers, response);

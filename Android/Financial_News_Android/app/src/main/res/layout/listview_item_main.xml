@@ -13,8 +13,7 @@
         android:layout_alignParentTop="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        android:layout_marginRight="10dp"
-        android:src="@drawable/sample" />
+        android:layout_marginRight="10dp" />
 
     <TextView
         android:layout_width="wrap_content"
