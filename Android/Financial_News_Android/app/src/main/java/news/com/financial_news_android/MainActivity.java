@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.app.ActionBar;
 import android.app.Fragment;
 import android.app.FragmentManager;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.database.DataSetObserver;
@@ -33,6 +34,20 @@ import com.google.android.gms.appindexing.AppIndex;
 import com.google.android.gms.common.api.GoogleApiClient;
 
 import com.loopj.android.http.*;
+import com.raizlabs.android.dbflow.annotation.Database;
+import com.raizlabs.android.dbflow.config.FlowManager;
+import com.raizlabs.android.dbflow.sql.language.ConditionGroup;
+import com.raizlabs.android.dbflow.sql.language.From;
+import com.raizlabs.android.dbflow.sql.language.Method;
+import com.raizlabs.android.dbflow.sql.language.SQLite;
+import com.raizlabs.android.dbflow.sql.language.property.IProperty;
+import com.raizlabs.android.dbflow.structure.BaseModel;
+import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
+import com.raizlabs.android.dbflow.structure.database.transaction.FastStoreModelTransaction;
+import com.raizlabs.android.dbflow.structure.database.transaction.ProcessModelTransaction;
+import com.raizlabs.android.dbflow.structure.database.transaction.Transaction;
+
+import net.sqlcipher.Cursor;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -40,6 +55,7 @@ import org.json.JSONObject;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.List;
 
 import cz.msebera.android.httpclient.Header;
 
@@ -176,7 +192,7 @@ public class MainActivity extends Activity
             return fragment;
         }
 
-        ArrayList<Article> articles = null;
+        List<Article> articles = null;
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
@@ -193,75 +209,105 @@ public class MainActivity extends Activity
                 }
             });
 
+
             final Handler h = new Handler() {
                 @Override
                 public void handleMessage(Message msg) {
                     super.handleMessage(msg);
 
-                    articles = (ArrayList<Article>) msg.obj;
+                    articles.addAll(0, (ArrayList<Article>) msg.obj);
                     lv.setAdapter(new UsersAdapter(getActivity(), articles));
+                    //lv.setAdapter(new UsersAdapter(getActivity(), articles));
+
+                    //articles = SQLite.select().from(Article.class).queryList();
+                    //lv.setAdapter(new UsersAdapter(getActivity(), articles));
 
                     //((TextView) MainActivity.this.findViewById(R.id.tttt)).setText(arts.get(0).getContent());
                 }
             };
 
-            AsyncHttpClient c = new AsyncHttpClient();
-        /*c.get("http://137.43.93.133:8000/articles/article_api_list/?format=json", new AsyncHttpResponseHandler() {
-            @Override
-            public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
-                h.sendMessage(Message.obtain(h,1,new String(responseBody)));
+            articles = SQLite.select().from(Article.class).queryList();
+
+            String requestDatetime = "2016-06-01T00:00:00Z";
+            if (articles != null && articles.size() > 0) {
+                lv.setAdapter(new UsersAdapter(getActivity(), articles));
+                android.database.Cursor aa = SQLite.select(Method.max(Article_Table.datetime)).from(Article.class).query();
+                aa.moveToFirst();
+                requestDatetime = aa.getString(0);
+
+                //Toast.makeText(getActivity(), aa.getString(0), Toast.LENGTH_LONG).show();
             }
+            //else {
+                AsyncHttpClient c = new AsyncHttpClient();
 
-            @Override
-            public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
-                Toast.makeText(MainActivity.this, new String(responseBody), Toast.LENGTH_LONG).show();
-            }
-        });*/
+                RequestParams rp = new RequestParams();
+                rp.add("format", "json");
+                rp.add("latestDatetime", requestDatetime);
 
-            c.get("http://137.43.93.133:8000/articles/article_api_list/?format=json", new JsonHttpResponseHandler() {
-                @Override
-                public void onSuccess(int statusCode, Header[] headers, JSONArray response) {
-                    super.onSuccess(statusCode, headers, response);
+                c.get("http://137.43.93.133:8000/articles/article_api_list/", rp, new JsonHttpResponseHandler() {
+                    @Override
+                    public void onSuccess(int statusCode, Header[] headers, JSONArray response) {
+                        super.onSuccess(statusCode, headers, response);
 
-                    int size = response.length();
-                    ArrayList<Article> articles = new ArrayList<Article>();
-                    Article art;
-                    JSONObject obj;
-                    for (int i = 0; i < size; i++) {
-                        art = new Article();
+                        int size = response.length();
+                        ArrayList<Article> articles = new ArrayList<Article>();
+                        Article art;
+                        JSONObject obj;
+                        for (int i = 0; i < size; i++) {
+                            art = new Article();
 
-                        try {
-                            obj = response.getJSONObject(i);
-                            art.setContent(obj.getString("Content"));
-                            art.setDatetime(obj.getString("DateTime"));
-                            art.setHeadline(obj.getString("Headline"));
-                            art.setSubHeadline(obj.getString("SubHeadline"));
-                            art.setUrl(obj.getString("Url"));
-                            art.setKeywords(obj.getString("Keywords"));
-                            art.setType(obj.getString("Type"));
-                            art.setSource(obj.getString("Source"));
+                            try {
+                                obj = response.getJSONObject(i);
+                                art.setContent(obj.getString("Content"));
+                                art.setDatetime(obj.getString("DateTime"));
+                                art.setHeadline(obj.getString("Headline"));
+                                art.setSubHeadline(obj.getString("SubHeadline"));
+                                art.setUrl(obj.getString("Url"));
+                                art.setKeywords(obj.getString("Keywords"));
+                                art.setType(obj.getString("Type"));
+                                art.setSource(obj.getString("Source"));
 
-                            articles.add(art);
-                        } catch (JSONException e) {
-                            e.printStackTrace();
+                                articles.add(art);
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
                         }
+
+                        FastStoreModelTransaction.insertBuilder(FlowManager.getModelAdapter(Article.class))
+                                .addAll(articles).build().execute(FlowManager.getDatabase(AppDatabase.class).getWritableDatabase());
+
+                    /*ProcessModelTransaction<Article> processModelTransaction =
+                            new ProcessModelTransaction.Builder<>(new ProcessModelTransaction.ProcessModel<Article>() {
+                                @Override
+                                public void processModel(Article model) {
+                                    // call some operation on model here
+                                    //model.save();
+                                    model.insert(); // or
+                                    //model.delete(); // or
+                                }
+                            }).addAll(articles).build();
+                    Transaction transaction = FlowManager.getDatabase(AppDatabase.class).beginTransactionAsync(processModelTransaction).build();
+                    transaction.execute();*/
+
+                        h.sendMessage(Message.obtain(h,1,articles));
                     }
 
-                    h.sendMessage(Message.obtain(h,1,articles));
-                }
+
+                    @Override
+                    public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
+                        super.onFailure(statusCode, headers, responseString, throwable);
+                    }
+                });
+            //}
 
 
-                @Override
-                public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
-                    super.onFailure(statusCode, headers, responseString, throwable);
-                }
-            });
+
 
             return rootView;
         }
 
         public class UsersAdapter extends ArrayAdapter<Article> {
-            public UsersAdapter(Context context, ArrayList<Article> users) {
+            public UsersAdapter(Context context, List<Article> users) {
                 super(context, 0, users);
             }
 

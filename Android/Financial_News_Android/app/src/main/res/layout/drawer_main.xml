@@ -4,6 +4,7 @@
     android:layout_height="match_parent"
     tools:context="news.com.financial_news_android.NavigationDrawerFragment"
     android:background="#ffffff"
+    android:clickable="true"
     android:id="@+id/draw"
     >
 
@@ -69,10 +70,14 @@
         android:layout_width="match_parent"
         android:layout_height="70dp"
         android:layout_below="@+id/linearLayout3"
+        android:id="@+id/logout"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:gravity="center_vertical"
-        android:paddingLeft="10dp">
+        android:paddingLeft="10dp"
+        android:clickable="true"
+        android:contextClickable="true"
+        >
 
         <ImageView
             android:layout_width="30dp"

@@ -4,6 +4,7 @@ package news.com.financial_news_android;
 import android.app.Activity;
 import android.app.ActionBar;
 import android.app.Fragment;
+import android.content.Intent;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -21,6 +22,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 /**
@@ -59,6 +61,8 @@ public class NavigationDrawerFragment extends Fragment {
     private boolean mFromSavedInstanceState;
     private boolean mUserLearnedDrawer;
 
+    TextView tv;
+
     public NavigationDrawerFragment() {
     }
 
@@ -92,6 +96,18 @@ public class NavigationDrawerFragment extends Fragment {
                              Bundle savedInstanceState) {
         draw = (RelativeLayout) inflater.inflate(
                 R.layout.drawer_main, container, false);
+
+        tv = (TextView) draw.findViewById(R.id.editText);
+        tv.setText(PreferenceManager.getDefaultSharedPreferences(getActivity()).getString("user", ""));
+        draw.findViewById(R.id.logout).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(getActivity(), Login.class);
+                getActivity().startActivity(i);
+                getActivity().finish();
+            }
+        });
+
         return draw;
     }
 
