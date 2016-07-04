@@ -29,11 +29,12 @@ def scrapAll():
 
             #scrapRSSFeed('http://www.chinadaily.com.cn/rss/world_rss.xml')
             #scrapRSSFeed('http://feeds.bbci.co.uk/news/business/rss.xml')
-            scrapRSSFeed('http://feeds.nytimes.com/nyt/rss/Business')
+            #scrapRSSFeed('http://feeds.nytimes.com/nyt/rss/Business')
             #scrapRSSFeed('http://feeds.reuters.com/reuters/businessNews')
             #scrapRSSFeed('http://rss.sina.com.cn/roll/finance/hot_roll.xml')
-            scrapRSSFeed('feed://rss.huanqiu.com/finance/view.xml')
-            scrapRSSFeed('http://news.baidu.com/n?cmd=1&class=finannews&tn=rss')
+            #scrapRSSFeed('feed://rss.huanqiu.com/finance/view.xml')
+            #scrapRSSFeed('http://news.baidu.com/n?cmd=1&class=finannews&tn=rss')
+            scrapRSSFeed('http://www.people.com.cn/rss/finance.xml')
 
 
         else:

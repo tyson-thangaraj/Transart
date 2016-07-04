@@ -75,8 +75,17 @@ def getArticleDetailsByUrl(url):
         date = datetime.strptime(tag, "%Y%m%d%H%M%S")
     elif "reuters" in url:
         source="Reuters"
-    elif "huanqiu" in url:
-        source = "huanqiu"
+    elif "people" in url:
+        source = "People"
+        title = str.split(title, '--')[0]
+        page = urllib.request.urlopen(url).read()
+        soup = BeautifulSoup(page,"html.parser")
+        soup.prettify()
+        news_content=''
+        for tag in soup.find("div", attrs={"class": "box_con"}).find_all("p"):
+            if "script" not in tag.get_text():
+                news_content += tag.get_text() + '\n'
+        keywords = extractKeywords(title)
     elif "sina" in url:
         page = urllib.request.urlopen(url).read()
         soup = BeautifulSoup(page,"html.parser")
