@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'django_extensions',
     'homepage',
     'accounts',
+    'newsmatch',
 ]
 
 REST_FRAMEWORK = {
