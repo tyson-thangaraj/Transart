@@ -123,7 +123,6 @@ def getArticleDetailsByUrl(url):
         soup.prettify()
         tag = soup.find("meta", attrs={"name": "cXenseParse:recs:publishtime"}).get('content')
         date = datetime.strptime(tag, "%Y-%m-%dT%H:%MZ")
-        keywords = extractKeywords(title)
     elif "spiegel" in url:
         source = "Spiegel Online International"
     elif "france24" in url:
