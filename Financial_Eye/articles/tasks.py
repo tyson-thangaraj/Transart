@@ -18,7 +18,7 @@ from articles.models import Article
 
 #read RSS feed every 15mins
 #@periodic_task(run_every=crontab(minute='59,14,29,44'), time_limit=14 * 60, soft_time_limit=14 * 50 - 5, expires=60)
-@periodic_task(run_every=timedelta(minutes=1), expires=60)
+@periodic_task(run_every=timedelta(minutes=60), expires=60)
 def scrapAll():
     lock_id = "scrapAll"
     have_lock = False
@@ -33,7 +33,7 @@ def scrapAll():
             scrapRSSFeed('http://feeds.nytimes.com/nyt/rss/Business')
             scrapRSSFeed('http://feeds.reuters.com/reuters/businessNews')
             scrapRSSFeed('http://rss.sina.com.cn/roll/finance/hot_roll.xml')
-            #scrapRSSFeed('feed://rss.huanqiu.com/finance/view.xml')
+
             scrapRSSFeed('http://www.channelnewsasia.com/starterkit/servlet/cna/rss/business.xml')
             scrapRSSFeed('http://www.spiegel.de/international/business/index.rss')   #spiegel online international no update
             scrapRSSFeed('http://www.france24.com/en/timeline/rss')
