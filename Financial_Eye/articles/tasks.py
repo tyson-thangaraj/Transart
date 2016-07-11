@@ -34,8 +34,10 @@ def scrapAll():
             scrapRSSFeed('http://feeds.reuters.com/reuters/businessNews')
             scrapRSSFeed('http://rss.sina.com.cn/roll/finance/hot_roll.xml')
             #scrapRSSFeed('feed://rss.huanqiu.com/finance/view.xml')
-            #scrapRSSFeed('http://news.baidu.com/n?cmd=1&class=finannews&tn=rss')
-            #scrapRSSFeed('http://www.people.com.cn/rss/finance.xml')
+            scrapRSSFeed('http://www.channelnewsasia.com/starterkit/servlet/cna/rss/business.xml')
+            scrapRSSFeed('http://www.spiegel.de/international/business/index.rss')   #spiegel online international no update
+            scrapRSSFeed('http://www.france24.com/en/timeline/rss')
+            scrapRSSFeed('http://business.asiaone.com/rss.xml')  #AsiaOne Business
 
 
         else:

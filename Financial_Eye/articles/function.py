@@ -116,6 +116,20 @@ def getArticleDetailsByUrl(url):
         news_content = translatedText['translations'][2]['translatedText']
 
         keywords = extractKeywords(title)
+    elif "channelnewsasia" in url:
+        source = "Channel NewsAsia"
+        page = urllib.request.urlopen(url).read()
+        soup = BeautifulSoup(page,"html.parser")
+        soup.prettify()
+        tag = soup.find("meta", attrs={"name": "cXenseParse:recs:publishtime"}).get('content')
+        date = datetime.strptime(tag, "%Y-%m-%dT%H:%MZ")
+        keywords = extractKeywords(title)
+    elif "spiegel" in url:
+        source = "Spiegel Online International"
+    elif "france24" in url:
+        source = "France 24"
+    elif "asiaone" in url:
+        source = "AsiaOne Business"
 
     return [title, sub_title, news_content, date, keywords, source, image]
 
