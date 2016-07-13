@@ -7,6 +7,7 @@ from articles.models import  Article
 class ArticleSerializer(serializers.ModelSerializer):
     class Meta:
         model = Article
-        fields = ('Headline', 'SubHeadline', 'Url', 'DateTime', 'Keywords', 'Content', 'Type', 'Source', 'Image')
+        #fields = ('Headline', 'SubHeadline', 'Url', 'DateTime', 'Keywords', 'Content', 'Type', 'Source', 'Image')
+        fields = ('id', 'Headline', 'SubHeadline', 'Url', 'DateTime', 'Keywords', 'Content', 'Type', 'Source', 'Image')
 
 
