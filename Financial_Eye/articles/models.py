@@ -5,6 +5,7 @@ from django.utils import timezone
 
 # Create your models here.
 class Article(models.Model):
+    #id = models.AutoField(primary_key=True)
     Headline = models.CharField(max_length=500, blank=True)
     SubHeadline = models.CharField(max_length=1000, blank=True)
     Url = models.URLField(max_length=400, unique=True, blank=True, null=True)
