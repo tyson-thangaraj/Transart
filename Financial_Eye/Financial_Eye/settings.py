@@ -25,7 +25,7 @@ djcelery.setup_loader()
 SECRET_KEY = 'lx8pz2r_kjxuks^m33ck+usz2e$iw)0n*x%h=df$cl4k0=^7-c'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
