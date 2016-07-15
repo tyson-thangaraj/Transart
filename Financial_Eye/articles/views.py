@@ -30,7 +30,11 @@ class ArticleFilter(filters.FilterSet):
         fields = ['latestDatetime']
 
 class ArticleList(generics.ListCreateAPIView):
-    queryset = Article.objects.all()
+    # queryset = Article.objects.all()
+    # only display news published in 5 days
+    th = datetime.now().replace(tzinfo=utc) - timedelta(hours=24*5)
+    queryset = Article.objects.filter(DateTime__gte = th).order_by('-DateTime')
+
     serializer_class = ArticleSerializer
     filter_backends = (filters.OrderingFilter,filters.DjangoFilterBackend,)
     filter_class = ArticleFilter
@@ -39,8 +43,11 @@ class ArticleList(generics.ListCreateAPIView):
     ordering = ('-DateTime',)
     
     # def get_queryset(self):
-    #     queryset = Article.objects.all()
-    #     datetime = self.request.query_params.get('datetime', None)
+    #     # queryset = Article.objects.all()
+    #     th = datetime.now().replace(tzinfo=utc) - timedelta(hours=24*3)
+    #     queryset = Article.objects.filter(DateTime__gte = th).order_by('-DateTime')
+
+    #     datetime = '2015-06-03T00:00:00Z'
     #     if datetime is not None:
     #         queryset = queryset.filter(DateTime__gt=datetime)
     #     return queryset
@@ -70,8 +77,10 @@ def article_detail_id(request, article_id):
 def article_list(request):
     try:
 
-        th = datetime.now().replace(tzinfo=utc) - timedelta(hours=24)
-        #list_of_articles = Article.objects.filter(DateTime__gte=th).order_by('-DateTime')
+        # th = datetime.now().replace(tzinfo=utc) - timedelta(hours=24*500)
+        # print('-------------------------------------')
+        # print(th)
+        # list_of_articles = Article.objects.filter(DateTime__gte = th).order_by('-DateTime')
         list_of_articles = Article.objects.filter().order_by('-DateTime')
 
         return render(request, 'article_list.html',
