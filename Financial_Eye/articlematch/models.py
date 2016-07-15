@@ -4,8 +4,8 @@ from django.db import models
 from articles.models import Article
 
 class Articlematch(models.Model):
-    News = models.ForeignKey(Article, on_delete=models.CASCADE)
-    Match_News= models.IntegerField()
+    News = models.ForeignKey(Article, on_delete=models.CASCADE)  #BBC news, Based news.
+    Match_News= models.IntegerField()   # ID of news which matched with bbc news
     Weight = models.FloatField(max_length = 100)
     class Meta:
         unique_together = (("News", "Match_News"),)

@@ -14,11 +14,11 @@ import redis
 
 from articles.function import createArticleByUrl
 from articles.models import Article
-
+from articlematch.function import matcharticlesbydate
 
 #read RSS feed every 60mins
 #@periodic_task(run_every=crontab(minute='59,14,29,44'), time_limit=14 * 60, soft_time_limit=14 * 50 - 5, expires=60)
-@periodic_task(run_every=timedelta(minutes=60), expires=60)
+@periodic_task(run_every=timedelta(minutes=1), expires=60)
 def scrapAll():
     lock_id = "scrapAll"
     have_lock = False
@@ -38,6 +38,10 @@ def scrapAll():
             scrapRSSFeed('http://www.spiegel.de/international/business/index.rss')   #spiegel online international no update
             scrapRSSFeed('http://www.france24.com/en/timeline/rss')
             scrapRSSFeed('http://business.asiaone.com/rss.xml')  #AsiaOne Business
+
+            # Match -- Three Days News
+            th = datetime.now().replace(tzinfo=utc) - timedelta(days=3)
+            matcharticlesbydate(th)
 
 
         else:
