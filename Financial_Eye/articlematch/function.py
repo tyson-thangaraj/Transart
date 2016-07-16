@@ -12,9 +12,7 @@ from django.core import serializers
 from articles.serializers import ArticleSerializer
 
 def matcharticlesbydate(th):
-<<<<<<< Updated upstream
-    data = serializers.serialize("json", Article.objects.filter(DateTime__gte = th), fields=('Content'))
-=======
+
     news = serializers.serialize("json", Article.objects.filter(DateTime__gte = th))
     news = json.loads(news)
     contents=[]
@@ -62,4 +60,4 @@ def lemma_tokenizer(text):
         lemma_tokens.append( lemmatizer.lemmatize(token) )
     return lemma_tokens
 
->>>>>>> Stashed changes
+
