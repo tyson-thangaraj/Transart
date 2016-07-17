@@ -99,9 +99,11 @@ def getArticleDetailsByUrl(url):
         keywords = extractKeywords(title)
     elif "sina" in url:
         page = urllib.request.urlopen(url).read()
-        soup = BeautifulSoup(page,"html.parser")
+        soup = BeautifulSoup(page,"html.parser",from_encoding="GB18030")
         soup.prettify()
         source = "Sina"
+        title = str.split(soup.title.string, '|')[0]
+        sub_title = soup.head.find("meta",attrs={"name":"description"}).get('content')
         news_content=''
         for tag in soup.find("div", attrs={"id": "artibody"}).find_all("p"):
             if "JavaScript" not in tag.get_text():
