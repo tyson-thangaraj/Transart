@@ -22,6 +22,11 @@ from rest_framework import generics
 from rest_framework import filters
 import django_filters
 
+from django.core import serializers
+
+
+
+
 class ArticleFilter(filters.FilterSet):
     latestDatetime = django_filters.IsoDateTimeFilter(name="DateTime", lookup_expr='gt')
     Source = django_filters.CharFilter(lookup_expr='iexact')
@@ -34,8 +39,50 @@ class ArticleList(generics.ListCreateAPIView):
     # only display news published in 5 days
     th = datetime.now().replace(tzinfo=utc) - timedelta(hours=24*5)
     queryset = Article.objects.filter(DateTime__gte = th).order_by('-DateTime')
-
+    
     serializer_class = ArticleSerializer
+
+
+
+    # news = serializers.serialize("json", Article.objects.filter(DateTime__gte = th), fields=('Source'))
+    # contents=[]
+    # ID=[]
+    # j=0 #store tha value of the number of documents
+    # print(news)
+    # print(type(news))
+    # #Extract raw descriptions and the corresponding two class labels for those descriptions
+    # for item in news:
+    #     print(item)
+    #     print("hello")
+        # contents.append(item["fields"]["Content"])
+        # ID.append(item["id"])
+        # j=j+1
+
+
+
+
+    # print('||||||||||||||||||||||||||||||||||||||||||||||||||')
+    # print(queryset)
+    # print(serializer_class)
+    # print('||||||||||||||||||||||||||||||||||||||||||||||||||')
+    # lol = Article.objects.all()
+    # print(lol)
+
+
+    # data = serializers.serialize("json", Article.objects.all(), fields=('Source'))
+    # print(data)
+
+
+
+    # for item in lol:
+    #     mdr = item.Content
+    #     print('----------------------------')
+    #     print(mdr)
+    
+    
+
+
+
     filter_backends = (filters.OrderingFilter,filters.DjangoFilterBackend,)
     filter_class = ArticleFilter
     #filter_fields = ('Source',)
