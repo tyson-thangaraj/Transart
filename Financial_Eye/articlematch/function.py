@@ -74,7 +74,7 @@ def matcharticlesbydate(th):
 
             article = Article.objects.get(pk=news_id)
             try:
-                get_object_or_404(Article, News=article, Match_News = ID[pk2])
+                get_object_or_404(Articlematch, News=article, Match_News = ID[pk2])
             except:
                 try:
                     articlematch = Articlematch(News = article, Match_News=ID[pk2], Weight = simi)
@@ -84,7 +84,8 @@ def matcharticlesbydate(th):
                     print("Failed adding matched article ")
                     pass
                 else:
-                    print("Add New matched Article:" + articlematch.News + articlematch.Match_News + articlematch.Weight)
+                    #print("Add New matched Article:" + articlematch.News.id + articlematch.Match_News + articlematch.Weight)
+                    print("Add New matched Article:" + articlematch.Match_News + articlematch.Weight)
             pk2 = pk2+1
         pk1 = pk1+1
 
