@@ -80,21 +80,30 @@ public class NewsActivity extends Activity {
                 findViewById(R.id.relatedstory).setVisibility(size==0?View.GONE:View.VISIBLE);
                 for (int i = 0; i < size; i++) {
                     Article temp = SQLite.select().from(Article.class).where(Article_Table.articleid.is(matches.get(i).getMatchid())).querySingle();
+                    if (temp == null) {
+                        continue;
+                    }
+
                     View view=null;
                     if (i == 0) {
-                        findViewById(R.id.r1).setVisibility(View.VISIBLE);
+                        view=findViewById(R.id.r1);
+                        view.setVisibility(View.VISIBLE);
                         setRelated(temp,view);
                     } else if (i == 1) {
-                        findViewById(R.id.r2).setVisibility(View.VISIBLE);
+                        view=findViewById(R.id.r2);
+                        view.setVisibility(View.VISIBLE);
                         setRelated(temp,view);
                     } else if (i == 2) {
-                        findViewById(R.id.r3).setVisibility(View.VISIBLE);
+                        view=findViewById(R.id.r3);
+                        view.setVisibility(View.VISIBLE);
                         setRelated(temp,view);
                     } else if (i == 3) {
-                        findViewById(R.id.r4).setVisibility(View.VISIBLE);
+                        view=findViewById(R.id.r4);
+                        view.setVisibility(View.VISIBLE);
                         setRelated(temp,view);
                     } else if (i == 4) {
-                        findViewById(R.id.r5).setVisibility(View.VISIBLE);
+                        view=findViewById(R.id.r5);
+                        view.setVisibility(View.VISIBLE);
                         setRelated(temp,view);
                     }
                 }
@@ -105,6 +114,14 @@ public class NewsActivity extends Activity {
         //findViewById(R.id.relatedstory).setVisibility("BBC".equals(art.getSource()) ? View.VISIBLE : View.GONE);
 
         if ("BBC".equals(art.getSource())) {
+
+            java.util.List<Match> ms = SQLite.select().from(Match.class).where(Match_Table.articleid.is(art.getArticleid())).orderBy(Match_Table.weight, false).queryList();
+            ArrayList<Match> mms = new ArrayList<Match>(ms);
+
+            if (ms.size() > 0) {
+                h.sendMessage(Message.obtain(h, 1, mms));
+            } else {
+
             AsyncHttpClient c = new AsyncHttpClient();
 
             RequestParams rp = new RequestParams();
@@ -114,27 +131,31 @@ public class NewsActivity extends Activity {
 
             c.get("http://137.43.93.133:8000/articlematch/matchlist/", rp, new JsonHttpResponseHandler() {
                 @Override
-                public void onSuccess(int statusCode, Header[] headers, JSONArray response) {
-                    super.onSuccess(statusCode, headers, response);
+                public void onSuccess(int statusCode, Header[] headers, JSONObject o) {
+                    super.onSuccess(statusCode, headers, o);
 
-                    int size = response.length();
                     ArrayList<Match> matches = new ArrayList<Match>();
+                    try {
+                    JSONArray response = o.getJSONArray("results");
+                    int size = response.length();
+
                     JSONObject obj;
                     Match match;
                     for (int i = 0; i < size; i++) {
                         match = new Match();
 
-                        try {
+
                             obj = response.getJSONObject(i);
                             match.setArticleid(Long.parseLong(obj.getString("News")));
                             match.setMatchid(Long.parseLong(obj.getString("Match_News")));
-                            match.setWeight(Long.parseLong(obj.getString("Weight")));
+                            match.setWeight(Double.parseDouble(obj.getString("Weight")));
 
                             matches.add(match);
 
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
+
+                    }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
                     }
 
                     if(matches.size()>0)
@@ -151,7 +172,7 @@ public class NewsActivity extends Activity {
                 public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
                     super.onFailure(statusCode, headers, responseString, throwable);
                 }
-            });
+            });}
         } else {
             findViewById(R.id.relatedstory).setVisibility(View.GONE);
         }
@@ -189,7 +210,7 @@ public class NewsActivity extends Activity {
 
 
 
-    public void setRelated(Article art,View v){
+    public void setRelated(final Article art,View v){
     ((TextView)v.findViewById(R.id.textView2)).
 
     setText(art.getHeadline()
@@ -249,9 +270,15 @@ public class NewsActivity extends Activity {
             });
         }
 
-        Intent i = new Intent(this, NewsActivity.class);
-        i.putExtra("article", art);
-        this.startActivity(i);
+        v.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(NewsActivity.this, NewsActivity.class);
+                i.putExtra("article", art);
+                NewsActivity.this.startActivity(i);
+            }
+        });
+
 
 
     }
