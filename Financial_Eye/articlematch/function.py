@@ -61,7 +61,7 @@ def matcharticlesbydate(th):
         in_feature = set(top_features)
         total_features = total_features | in_feature
     total_words = list(total_features)
-    print(len(total_features))
+    #print(len(total_features))
     #print(total_words)
 
     pk1 = 0
@@ -71,7 +71,7 @@ def matcharticlesbydate(th):
             if pk1 == pk2:
                 continue
             simi = cosine_similarity(item, item2)
-
+            news_id = ID[pk1]
             article = Article.objects.get(pk=news_id)
             try:
                 get_object_or_404(Articlematch, News=article, Match_News = ID[pk2])
@@ -88,7 +88,6 @@ def matcharticlesbydate(th):
                     print("Add New matched Article  +++++++++++++++++++++++++++++++++++++++++++++++")
             pk2 = pk2+1
         pk1 = pk1+1
-
 
 def lemma_tokenizer(text):
     # use the standard scikit-learn tokenizer first to converting strings of descriptions to a list of tokens
