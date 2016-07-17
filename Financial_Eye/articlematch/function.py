@@ -85,7 +85,7 @@ def matcharticlesbydate(th):
                     pass
                 else:
                     #print("Add New matched Article:" + articlematch.News.id + articlematch.Match_News + articlematch.Weight)
-                    print("Add New matched Article:" + articlematch.Match_News + articlematch.Weight)
+                    print("Add New matched Article  +++++++++++++++++++++++++++++++++++++++++++++++")
             pk2 = pk2+1
         pk1 = pk1+1
 
