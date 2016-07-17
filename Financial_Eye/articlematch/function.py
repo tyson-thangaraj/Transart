@@ -65,27 +65,33 @@ def matcharticlesbydate(th):
     #print(total_words)
 
     pk1 = 0
-    pk2 = 0
     for item in a1:
+        pk2 = 0
+        print(pk1)
+        article = Article.objects.get(pk=ID[pk1])
+        if(article.Source != "BBC"):
+            pk1 = pk1+1
+            continue
         for item2 in a1:
-            if pk1 == pk2:
-                continue
-            simi = cosine_similarity(item, item2)
-            news_id = ID[pk1]
-            article = Article.objects.get(pk=news_id)
-            try:
-                get_object_or_404(Articlematch, News=article, Match_News = ID[pk2])
-            except:
+            article2 = Article.objects.get(pk=ID[pk2])
+            # if(article2.Source == "BBC"):
+            #     pk2 = pk2+1
+            #     continue
+            if pk1 != pk2:
+                simi = cosine_similarity(item, item2)
                 try:
-                    articlematch = Articlematch(News = article, Match_News=ID[pk2], Weight = simi)
-                    articlematch.save()
-                except Exception as err:
-                    print(err)
-                    print("Failed adding matched article ")
-                    pass
-                else:
-                    #print("Add New matched Article:" + articlematch.News.id + articlematch.Match_News + articlematch.Weight)
-                    print("Add New matched Article  +++++++++++++++++++++++++++++++++++++++++++++++")
+                    get_object_or_404(Articlematch, News=article, Match_News = ID[pk2])
+                except:
+                    try:
+                        articlematch = Articlematch(News = article, Match_News=ID[pk2], Weight = simi)
+                        articlematch.save()
+                    except Exception as err:
+                        print(err)
+                        print("Failed adding matched article ")
+                        pass
+                    else:
+                        #print("Add New matched Article:" + articlematch.News.id + articlematch.Match_News + articlematch.Weight)
+                        print("Add New matched Article  +++++++++++++++++++++++++++++++++++++++++++++++")
             pk2 = pk2+1
         pk1 = pk1+1
 
