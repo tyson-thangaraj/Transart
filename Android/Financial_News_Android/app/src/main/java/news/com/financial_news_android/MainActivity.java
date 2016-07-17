@@ -237,27 +237,20 @@ public class MainActivity extends Activity
                     articles.addAll(0, (ArrayList<Article>) msg.obj);
                     lv.setAdapter(new UsersAdapter(getActivity(), articles));
 
-
-                    //lv.setAdapter(new UsersAdapter(getActivity(), articles));
-
-                    //articles = SQLite.select().from(Article.class).queryList();
-                    //lv.setAdapter(new UsersAdapter(getActivity(), articles));
-
-                    //((TextView) MainActivity.this.findViewById(R.id.tttt)).setText(arts.get(0).getContent());
                 }
             };
 
-            articles = SQLite.select().from(Article.class).queryList();
-
             SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             Calendar cal = Calendar.getInstance();
-            cal.add(Calendar.DATE, -7);
+            cal.add(Calendar.DATE, -3);
             String requestDatetime = df.format(cal.getTime());
             String[] s = requestDatetime.split(" ");
             requestDatetime = s[0] + "T" + s[1] + "Z";
-//            int i1 = requestDatetime.compareTo("2016-06-01T00:00:00Z");
-//            int i2 = requestDatetime.compareTo("2016-07-04T00:00:00Z");
-//            int i3 = requestDatetime.compareTo("2016-08-01T00:00:00Z");
+
+            SQLite.delete(Article.class).where(Article_Table.datetime.lessThanOrEq(requestDatetime))
+                    .and(Article_Table.isFav.isNot("1")).execute();
+            articles = SQLite.select().from(Article.class).where(Article_Table.source.is("BBC")).orderBy(Article_Table.datetime, false).queryList();
+
             if (articles != null && articles.size() > 0) {
                 lv.setAdapter(new UsersAdapter(getActivity(), articles));
                 android.database.Cursor aa = SQLite.select(Method.max(Article_Table.datetime)).from(Article.class).query();
@@ -284,6 +277,7 @@ public class MainActivity extends Activity
 
                         int size = response.length();
                         ArrayList<Article> articles = new ArrayList<Article>();
+                        ArrayList<Article> bbc = new ArrayList<Article>();
                         JSONObject obj;
                         Article art;
                         for (int i = 0; i < size; i++) {
@@ -300,40 +294,14 @@ public class MainActivity extends Activity
                                 art.setType(obj.getString("Type"));
                                 art.setSource(obj.getString("Source"));
                                 art.setImage(obj.getString("Image"));
-
-//                                if (art.getImage() != null && !"".equals(art.getImage())) {
-//                                    //Bitmap b = ImageLoader.getInstance().loadImageSync(art.getImage());
-//                                    ImageLoader.getInstance().loadImage(art.getImage(), new ImageLoadingListener() {
-//
-//
-//                                        @Override
-//                                        public void onLoadingStarted(String imageUri, View view) {
-//
-//                                        }
-//
-//                                        @Override
-//                                        public void onLoadingFailed(String imageUri, View view, FailReason failReason) {
-//
-//                                        }
-//
-//                                        @Override
-//                                        public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
-//                                            saveImage(loadedImage,
-//                                                    Base64.encodeToString(imageUri.getBytes(), Base64.DEFAULT) + ".jpg");
-//
-//                                            if (lv != null &&)
-//                                        }
-//
-//                                        @Override
-//                                        public void onLoadingCancelled(String imageUri, View view) {
-//
-//                                        }
-//                                    });
-
-
-//                                }
+                                art.setArticleid(obj.getInt("id"));
 
                                 articles.add(art);
+
+                                if ("BBC".equals(art.getSource())) {
+                                    bbc.add(art);
+                                }
+
                             } catch (JSONException e) {
                                 e.printStackTrace();
                             }
@@ -342,20 +310,7 @@ public class MainActivity extends Activity
                         FastStoreModelTransaction.insertBuilder(FlowManager.getModelAdapter(Article.class))
                                 .addAll(articles).build().execute(FlowManager.getDatabase(AppDatabase.class).getWritableDatabase());
 
-                    /*ProcessModelTransaction<Article> processModelTransaction =
-                            new ProcessModelTransaction.Builder<>(new ProcessModelTransaction.ProcessModel<Article>() {
-                                @Override
-                                public void processModel(Article model) {
-                                    // call some operation on model here
-                                    //model.save();
-                                    model.insert(); // or
-                                    //model.delete(); // or
-                                }
-                            }).addAll(articles).build();
-                    Transaction transaction = FlowManager.getDatabase(AppDatabase.class).beginTransactionAsync(processModelTransaction).build();
-                    transaction.execute();*/
-
-                        h.sendMessage(Message.obtain(h,1,articles));
+                        h.sendMessage(Message.obtain(h,1,bbc));
                     }
 
 

@@ -108,6 +108,22 @@ public class NavigationDrawerFragment extends Fragment {
             }
         });
 
+        draw.findViewById(R.id.linearLayout3).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(getActivity(), FavsActivity.class);
+                getActivity().startActivity(i);
+            }
+        });
+
+        draw.findViewById(R.id.aboutus).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(getActivity(), AboutUsActivity.class);
+                getActivity().startActivity(i);
+            }
+        });
+
         return draw;
     }
 

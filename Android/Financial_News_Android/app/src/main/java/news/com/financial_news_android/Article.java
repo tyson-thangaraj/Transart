@@ -17,6 +17,28 @@ public class Article extends BaseModel implements Parcelable {
     @PrimaryKey(autoincrement = true)
     long id;
 
+    public long getArticleid() {
+        return articleid;
+    }
+
+    public void setArticleid(long articleid) {
+        this.articleid = articleid;
+    }
+
+    @Column
+    private long articleid;
+
+    public String getIsFav() {
+        return isFav;
+    }
+
+    public void setIsFav(String fav) {
+        isFav = fav;
+    }
+
+    @Column
+    private String isFav;
+
     @Column
     private String headline;
 
@@ -138,10 +160,13 @@ public class Article extends BaseModel implements Parcelable {
     // write your object's data to the passed-in Parcel
     @Override
     public void writeToParcel(Parcel out, int flags) {
+        out.writeLong(articleid);
         out.writeString(headline);
         out.writeString(subHeadline);
         out.writeString(content);
         out.writeString(image);
+        out.writeString(source);
+        out.writeString(isFav);
     }
 
     // this is used to regenerate your object. All Parcelables must have a CREATOR that implements these two methods
@@ -159,9 +184,12 @@ public class Article extends BaseModel implements Parcelable {
 
     // example constructor that takes a Parcel and gives you an object populated with it's values
     public Article(Parcel in) {
+        articleid = in.readLong();
         headline = in.readString();
         subHeadline = in.readString();
         content = in.readString();
         image = in.readString();
+        source = in.readString();
+        isFav = in.readString();
     }
 }

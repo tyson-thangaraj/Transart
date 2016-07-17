@@ -106,6 +106,7 @@
         android:id="@+id/linearLayout4"
         android:gravity="center_vertical"
         android:paddingLeft="10dp"
+        android:visibility="gone"
         >
 
         <ImageView
@@ -129,12 +130,12 @@
         android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="70dp"
-        android:layout_above="@+id/linearLayout4"
+        android:layout_alignParentBottom="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:gravity="center_vertical"
         android:paddingLeft="10dp"
-        >
+        android:id="@+id/aboutus">
         <ImageView
             android:layout_width="30dp"
             android:layout_height="30dp"
