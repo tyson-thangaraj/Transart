@@ -18,7 +18,8 @@ from articlematch.function import matcharticlesbydate
 
 #read RSS feed every 60mins
 #@periodic_task(run_every=crontab(minute='59,14,29,44'), time_limit=14 * 60, soft_time_limit=14 * 50 - 5, expires=60)
-@periodic_task(run_every=timedelta(minutes=1), expires=60)
+#expires ----- describes the absolute time and date of when the task should expire
+@periodic_task(run_every=timedelta(minutes=60), expires=60*10)
 def scrapAll():
     lock_id = "scrapAll"
     have_lock = False
@@ -28,16 +29,16 @@ def scrapAll():
         if have_lock:
             print(lock_id + " lock acquired!")
 
-            # scrapRSSFeed('http://www.chinadaily.com.cn/rss/world_rss.xml')
-            # scrapRSSFeed('http://feeds.bbci.co.uk/news/business/rss.xml')
-            # scrapRSSFeed('http://feeds.nytimes.com/nyt/rss/Business')
-            # scrapRSSFeed('http://feeds.reuters.com/reuters/businessNews')
-            # scrapRSSFeed('http://rss.sina.com.cn/roll/finance/hot_roll.xml')
+            scrapRSSFeed('http://feeds.bbci.co.uk/news/business/rss.xml')
+            scrapRSSFeed('http://www.chinadaily.com.cn/rss/world_rss.xml')
+            scrapRSSFeed('http://feeds.nytimes.com/nyt/rss/Business')
+            scrapRSSFeed('http://feeds.reuters.com/reuters/businessNews')
+            scrapRSSFeed('http://rss.sina.com.cn/roll/finance/hot_roll.xml')
 
-            # scrapRSSFeed('http://www.channelnewsasia.com/starterkit/servlet/cna/rss/business.xml')
+            scrapRSSFeed('http://www.channelnewsasia.com/starterkit/servlet/cna/rss/business.xml')
             # scrapRSSFeed('http://www.spiegel.de/international/business/index.rss')   #spiegel online international no update
-            # scrapRSSFeed('http://www.france24.com/en/timeline/rss')
-            # scrapRSSFeed('http://business.asiaone.com/rss.xml')  #AsiaOne Business
+            scrapRSSFeed('http://www.france24.com/en/timeline/rss')
+            scrapRSSFeed('http://business.asiaone.com/rss.xml')  #AsiaOne Business
 
             # Match -- Three Days News
             th = datetime.now().replace(tzinfo=utc) - timedelta(days=3)
