@@ -41,59 +41,11 @@ def matcharticlesbydate(th):
     #sort the tf-idf and find most important words for each news
     a1=X.toarray()
 
-    total_features = set()
+    # extract the keywords
+    extractKeywords(a1, vectorizer, ID)
 
-    i = 0  # get the corresponding id of the news
+    articles_similarity(a1,ID)
 
-    for item in a1:
-        indices = np.argsort(item)[::-1]
-        features = vectorizer.get_feature_names()
-        top_n = 20
-        top_features = [features[i] for i in indices[:top_n]]
-        news_id = ID[i]
-
-        article = Article.objects.get(pk=news_id)
-        article.Keywords = str(top_features)
-        article.save()
-        i = i+1
-        #print(top_features)
-
-        in_feature = set(top_features)
-        total_features = total_features | in_feature
-    total_words = list(total_features)
-    #print(len(total_features))
-    #print(total_words)
-
-    pk1 = 0
-    for item in a1:
-        pk2 = 0
-        print(pk1)
-        article = Article.objects.get(pk=ID[pk1])
-        if(article.Source != "BBC"):
-            pk1 = pk1+1
-            continue
-        for item2 in a1:
-            article2 = Article.objects.get(pk=ID[pk2])
-            # if(article2.Source == "BBC"):
-            #     pk2 = pk2+1
-            #     continue
-            if pk1 != pk2:
-                simi = cosine_similarity(item, item2)
-                try:
-                    get_object_or_404(Articlematch, News=article, Match_News = ID[pk2])
-                except:
-                    try:
-                        articlematch = Articlematch(News = article, Match_News=ID[pk2], Weight = simi)
-                        articlematch.save()
-                    except Exception as err:
-                        print(err)
-                        print("Failed adding matched article ")
-                        pass
-                    else:
-                        #print("Add New matched Article:" + articlematch.News.id + articlematch.Match_News + articlematch.Weight)
-                        print("Add New matched Article  +++++++++++++++++++++++++++++++++++++++++++++++")
-            pk2 = pk2+1
-        pk1 = pk1+1
 
 def lemma_tokenizer(text):
     # use the standard scikit-learn tokenizer first to converting strings of descriptions to a list of tokens
@@ -105,3 +57,61 @@ def lemma_tokenizer(text):
     for token in tokens:
         lemma_tokens.append( lemmatizer.lemmatize(token) )
     return lemma_tokens
+
+
+# fetch the keywords based on the values of TF-IDF
+def extractKeywords(newsarray, vectorizer, ids):
+    total_features = set()
+    i = 0  # get the corresponding id of the news
+    for item in newsarray:
+        # sort the value of tf-idf
+        indices = np.argsort(item)[::-1]
+        features = vectorizer.get_feature_names()
+        # get top_n features
+        top_n = 20
+        top_features = [features[i] for i in indices[:top_n]]
+        news_id = ids[i]
+
+        # save the keywords to the article object based on the pk
+        article = Article.objects.get(pk=news_id)
+        article.Keywords = str(top_features)
+        article.save()
+        i = i+1
+        in_feature = set(top_features)
+        total_features = total_features | in_feature
+
+
+# save the matched news to database
+def articles_similarity(newsarray,ids):
+    pk1 = 0
+    for item1 in newsarray:
+        pk2 = 0
+
+        article = Article.objects.get(pk=ids[pk1])
+        if(article.Source != "BBC"):
+            pk1 = pk1+1
+            continue
+        for item2 in newsarray:
+            # article2 = Article.objects.get(pk=ids[pk2])
+            # if(article2.Source == "BBC"):
+            #     pk2 = pk2+1
+            #     continue
+            if pk1 != pk2:
+                try:
+                    get_object_or_404(Articlematch, News=article, Match_News = ids[pk2])
+                except:
+                    try:
+                        #get the cosine score of this two articles based on the tf-idf
+                        simi = cosine_similarity(item1, item2)
+                        # save
+                        articlematch = Articlematch(News = article, Match_News=ids[pk2], Weight = simi)
+                        articlematch.save()
+                    except Exception as err:
+                        print(err)
+                        print("Failed adding matched article ")
+                        pass
+                    else:
+                        #print("Add New matched Article:" + articlematch.News.id + articlematch.Match_News + articlematch.Weight)
+                        print("Add New matched Article  +++++++++++++++++++++++++++++++++++++++++++++++")
+            pk2 = pk2+1
+        pk1 = pk1+1
