@@ -300,11 +300,11 @@ public class MainActivity extends Activity
                         }
                     }
 
-                    if (bbc.size() > 0) {
+                    if (articles.size() > 0) {
                     FastStoreModelTransaction.insertBuilder(FlowManager.getModelAdapter(Article.class))
-                            .addAll(articles).build().execute(FlowManager.getDatabase(AppDatabase.class).getWritableDatabase());
+                            .addAll(articles).build().execute(FlowManager.getDatabase(AppDatabase.class).getWritableDatabase());}
 
-                    h.sendMessage(Message.obtain(h,1,bbc));}
+                    if (bbc.size() > 0) {h.sendMessage(Message.obtain(h,1,bbc));}
                 }
 
 

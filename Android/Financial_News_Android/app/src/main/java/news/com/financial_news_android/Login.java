@@ -120,11 +120,24 @@ public class Login extends AppCompatActivity implements LoaderCallbacks<Cursor> 
                     public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                         super.onSuccess(statusCode, headers, response);
 
-                        PreferenceManager.getDefaultSharedPreferences(Login.this).edit().putString("user", mEmailView.getText().toString()).commit();
+                        String info = "";
 
-                        Intent i = new Intent(Login.this, MainActivity.class);
-                        Login.this.startActivity(i);
-                        Login.this.finish();
+                        try {
+                            info = response.getJSONArray("Info").get(0).toString();
+                        } catch (Exception e) {
+                        }
+
+                        if ("Sucessfully login".equals(info)) {
+                            PreferenceManager.getDefaultSharedPreferences(Login.this).edit().putString("user", mEmailView.getText().toString()).commit();
+
+                            Intent i = new Intent(Login.this, MainActivity.class);
+                            Login.this.startActivity(i);
+                            Login.this.finish();
+                        } else {
+                            Toast.makeText(Login.this, info, Toast.LENGTH_LONG).show();
+                        }
+
+
 
                     }
 
