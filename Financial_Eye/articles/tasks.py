@@ -18,7 +18,8 @@ from articlematch.function import matcharticlesbydate
 
 #read RSS feed every 60mins
 #@periodic_task(run_every=crontab(minute='59,14,29,44'), time_limit=14 * 60, soft_time_limit=14 * 50 - 5, expires=60)
-@periodic_task(run_every=timedelta(minutes=1), expires=60)
+#expires ----- describes the absolute time and date of when the task should expire
+@periodic_task(run_every=timedelta(minutes=60), expires=60*5)
 def scrapAll():
     lock_id = "scrapAll"
     have_lock = False
