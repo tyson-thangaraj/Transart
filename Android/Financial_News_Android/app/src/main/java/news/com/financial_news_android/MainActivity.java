@@ -17,6 +17,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.*;
 import android.util.Base64;
 import android.view.Gravity;
@@ -93,6 +94,8 @@ public class MainActivity extends Activity
      * See https://g.co/AppIndexing/AndroidStudio for more information.
      */
     private GoogleApiClient client;
+
+    private SwipeRefreshLayout swipeContainer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -212,33 +215,22 @@ public class MainActivity extends Activity
         }
 
         List<Article> articles = null;
-        @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                                 Bundle savedInstanceState) {
-            View rootView = inflater.inflate(R.layout.fragment_main, container, false);
+        ListView lv = null;
+        private SwipeRefreshLayout swipeContainer;
 
-            final ListView lv = (ListView) rootView.findViewById(R.id.listView);
+        Handler h = new Handler() {
+            @Override
+            public void handleMessage(Message msg) {
+                super.handleMessage(msg);
 
-            lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                @Override
-                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                    Intent i = new Intent(parent.getContext(), NewsActivity.class);
-                    i.putExtra("article", articles.get(position));
-                    parent.getContext().startActivity(i);
-                }
-            });
+                articles.addAll(0, (ArrayList<Article>) msg.obj);
+                lv.setAdapter(new UsersAdapter(getActivity(), articles));
 
+            }
+        };
 
-            final Handler h = new Handler() {
-                @Override
-                public void handleMessage(Message msg) {
-                    super.handleMessage(msg);
-
-                    articles.addAll(0, (ArrayList<Article>) msg.obj);
-                    lv.setAdapter(new UsersAdapter(getActivity(), articles));
-
-                }
-            };
+        public void refresh(){
+            swipeContainer.setRefreshing(true);
 
             SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             Calendar cal = Calendar.getInstance();
@@ -252,7 +244,8 @@ public class MainActivity extends Activity
             articles = SQLite.select().from(Article.class).where(Article_Table.source.is("BBC")).orderBy(Article_Table.datetime, false).queryList();
 
             if (articles != null && articles.size() > 0) {
-                lv.setAdapter(new UsersAdapter(getActivity(), articles));
+                if (lv.getAdapter() == null || lv.getAdapter().getCount() == 0) {
+                    lv.setAdapter(new UsersAdapter(getActivity(), articles));}
                 android.database.Cursor aa = SQLite.select(Method.max(Article_Table.datetime)).from(Article.class).query();
                 aa.moveToFirst();
                 String max = aa.getString(0);
@@ -264,61 +257,103 @@ public class MainActivity extends Activity
                 //Toast.makeText(getActivity(), aa.getString(0), Toast.LENGTH_LONG).show();
             }
             //else {
-                AsyncHttpClient c = new AsyncHttpClient();
+            AsyncHttpClient c = new AsyncHttpClient();
 
-                RequestParams rp = new RequestParams();
-                rp.add("format", "json");
-                rp.add("latestDatetime", requestDatetime);
+            RequestParams rp = new RequestParams();
+            rp.add("format", "json");
+            rp.add("latestDatetime", requestDatetime);
 
-                c.get("http://137.43.93.133:8000/articles/article_api_list/", rp, new JsonHttpResponseHandler() {
-                    @Override
-                    public void onSuccess(int statusCode, Header[] headers, JSONArray response) {
-                        super.onSuccess(statusCode, headers, response);
+            c.get("http://137.43.93.133:8000/articles/article_api_list/", rp, new JsonHttpResponseHandler() {
+                @Override
+                public void onSuccess(int statusCode, Header[] headers, JSONArray response) {
+                    super.onSuccess(statusCode, headers, response);
 
-                        int size = response.length();
-                        ArrayList<Article> articles = new ArrayList<Article>();
-                        ArrayList<Article> bbc = new ArrayList<Article>();
-                        JSONObject obj;
-                        Article art;
-                        for (int i = 0; i < size; i++) {
-                            art = new Article();
+                    int size = response.length();
+                    ArrayList<Article> articles = new ArrayList<Article>();
+                    ArrayList<Article> bbc = new ArrayList<Article>();
+                    JSONObject obj;
+                    Article art;
+                    for (int i = 0; i < size; i++) {
+                        art = new Article();
 
-                            try {
-                                obj = response.getJSONObject(i);
-                                art.setContent(obj.getString("Content"));
-                                art.setDatetime(obj.getString("DateTime"));
-                                art.setHeadline(obj.getString("Headline"));
-                                art.setSubHeadline(obj.getString("SubHeadline"));
-                                art.setUrl(obj.getString("Url"));
-                                art.setKeywords(obj.getString("Keywords"));
-                                art.setType(obj.getString("Type"));
-                                art.setSource(obj.getString("Source"));
-                                art.setImage(obj.getString("Image"));
-                                art.setArticleid(obj.getInt("id"));
+                        try {
+                            obj = response.getJSONObject(i);
+                            art.setContent(obj.getString("Content"));
+                            art.setDatetime(obj.getString("DateTime"));
+                            art.setHeadline(obj.getString("Headline"));
+                            art.setSubHeadline(obj.getString("SubHeadline"));
+                            art.setUrl(obj.getString("Url"));
+                            art.setKeywords(obj.getString("Keywords"));
+                            art.setType(obj.getString("Type"));
+                            art.setSource(obj.getString("Source"));
+                            art.setImage(obj.getString("Image"));
+                            art.setArticleid(obj.getInt("id"));
 
-                                articles.add(art);
+                            articles.add(art);
 
-                                if ("BBC".equals(art.getSource())) {
-                                    bbc.add(art);
-                                }
-
-                            } catch (JSONException e) {
-                                e.printStackTrace();
+                            if ("BBC".equals(art.getSource())) {
+                                bbc.add(art);
                             }
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
                         }
-
-                        FastStoreModelTransaction.insertBuilder(FlowManager.getModelAdapter(Article.class))
-                                .addAll(articles).build().execute(FlowManager.getDatabase(AppDatabase.class).getWritableDatabase());
-
-                        h.sendMessage(Message.obtain(h,1,bbc));
                     }
 
+                    if (bbc.size() > 0) {
+                    FastStoreModelTransaction.insertBuilder(FlowManager.getModelAdapter(Article.class))
+                            .addAll(articles).build().execute(FlowManager.getDatabase(AppDatabase.class).getWritableDatabase());
 
-                    @Override
-                    public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
-                        super.onFailure(statusCode, headers, responseString, throwable);
-                    }
-                });
+                    h.sendMessage(Message.obtain(h,1,bbc));}
+                }
+
+
+                @Override
+                public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
+                    super.onFailure(statusCode, headers, responseString, throwable);
+                }
+            });
+
+            swipeContainer.setRefreshing(false);
+        }
+
+        @Override
+        public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                                 Bundle savedInstanceState) {
+            View rootView = inflater.inflate(R.layout.fragment_main, container, false);
+
+            lv = (ListView) rootView.findViewById(R.id.listView);
+
+            swipeContainer = (SwipeRefreshLayout) rootView.findViewById(R.id.swipeContainer);
+
+            lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    Intent i = new Intent(parent.getContext(), NewsActivity.class);
+                    i.putExtra("article", articles.get(position));
+                    parent.getContext().startActivity(i);
+                }
+            });
+
+            refresh();
+
+
+            // Setup refresh listener which triggers new data loading
+            swipeContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+                @Override
+                public void onRefresh() {
+                    // Your code to refresh the list here.
+                    // Make sure you call swipeContainer.setRefreshing(false)
+                    // once the network request has completed successfully.
+                    refresh();
+                }
+            });
+            // Configure the refreshing colors
+            swipeContainer.setColorSchemeResources(android.R.color.holo_blue_bright,
+                    android.R.color.holo_green_light,
+                    android.R.color.holo_orange_light,
+                    android.R.color.holo_red_light);
+
             //}
 
 
