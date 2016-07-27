@@ -70,26 +70,7 @@ def user_login(request):
                 
     except Users.DoesNotExist:
         return Response(d1)
-    # flag = request.query_params.get('flag', None)
-    # print('++++++++++++++++++++++++++++++++++++++++')
-    # print(flag)
 
-    # if flag == '1':
-    #     print("----------------------------------------------")
-    #     user = Users(Username=username, Password=password)
-    #     print(user)
-    #     serializer = UserSerializer(user)
-    #     print(serializer.data)
-    #     serializer = UserSerializer(data=serializer.data)
-    #     if serializer.is_valid():
-    #         serializer.save()
-    #         return Response(serializer.data, status=status.HTTP_201_CREATED)
-    #     print(serializer.errors)
-    #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    # users = Users.objects.all()
-    # serializer = UserSerializer(users, many=True)
-    # return Response(serializer.data)
     
 # class UserList(generics.ListCreateAPIView):
 #     queryset = Users.objects.all()
