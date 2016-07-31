@@ -9,5 +9,8 @@ class Articlematch(models.Model):
     # News = models.IntegerField()  #BBC news, Based news.
     # Match_News= models.ForeignKey(Article, on_delete=models.CASCADE)   # News which matched with bbc news
     Weight = models.FloatField(max_length = 100)
+    Content_similarity = models.FloatField(max_length = 100, null=True)
+    Name_similarity = models.FloatField(max_length = 100, null=True)
+    User_feedback = models.FloatField(max_length = 100, null=True)
     class Meta:
         unique_together = (("News", "Match_News"),)
