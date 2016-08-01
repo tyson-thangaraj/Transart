@@ -11,6 +11,6 @@ class Articlematch(models.Model):
     Weight = models.FloatField(max_length = 100)
     Content_similarity = models.FloatField(max_length = 100, null=True)
     Name_similarity = models.FloatField(max_length = 100, null=True)
-    User_feedback = models.FloatField(max_length = 100, null=True)
+    User_feedback = models.FloatField(max_length = 100, default=0)
     class Meta:
         unique_together = (("News", "Match_News"),)
