@@ -19,8 +19,8 @@ def matcharticlesbydate(th):
 
     news = serializers.serialize("json", Article.objects.filter(DateTime__gte = th))
     news = json.loads(news)
-    bbc_news = serializers.serialize("json", Article.objects.filter(DateTime__gte = th, Source = "BBC"))
-   # print(news)
+    # bbc_news = serializers.serialize("json", Article.objects.filter(DateTime__gte = th, Source = "BBC"))
+    # print(news)
 
     contents=[]
     ID=[]
@@ -90,16 +90,12 @@ def articles_similarity(contents,newsarray,ids):
         pk2 = 0
         article = Article.objects.get(pk=ids[pk1])
         # fetch the name entity
-        name1 = get_continuous_chunks(contents[pk1])
+        name1 = extract_entities(contents[pk1])
         entities1=split_name(name1)
         if(article.Source != "BBC"):
             pk1 = pk1+1
             continue
         for item2 in newsarray:
-            # article2 = Article.objects.get(pk=ids[pk2])
-            # if(article2.Source == "BBC"):
-            #     pk2 = pk2+1
-            #     continue
             if pk1 != pk2:
                 try:
                     get_object_or_404(Articlematch, News=article, Match_News = ids[pk2])
@@ -108,12 +104,15 @@ def articles_similarity(contents,newsarray,ids):
                         #get the cosine score of this two articles based on the tf-idf
                         contents_similarity = cosine_similarity(item1, item2)
                         # print(contents_similarity)
-                        name2 = get_continuous_chunks(contents[pk2])
+                        name2 = extract_entities(contents[pk2])
                         entities2=split_name(name2)
+
                         result= set(entities1+entities2)
+
                         d1=get_all_word_counts(result,entities1)
                         d2=get_all_word_counts(result,entities2)
                         names_similarity = cosine_similarity(list(d1.values()),list(d2.values()))
+                        
                         if names_similarity == 0:
                             simi = contents_similarity
                         else:
@@ -133,7 +132,7 @@ def articles_similarity(contents,newsarray,ids):
 
 
 # Name entities
-def get_continuous_chunks(text):
+def extract_entities(text):
     chunked = ne_chunk(pos_tag(word_tokenize(text)))
     prev = None
     continuous_chunk = []
@@ -153,18 +152,17 @@ def get_continuous_chunks(text):
     return continuous_chunk
 
 #find name entity from certain text
-def find_name(st, text):
-    name_set = []
-    for sent in nltk.sent_tokenize(text):
-        tokens = nltk.tokenize.word_tokenize(sent)
-        tags = st.tag(tokens)
-        for tag in tags:
-            if tag[1]=='PERSON': name_set.append(tag[0])
-        return name_set
+# def find_name(st, text):
+#     name_set = []
+#     for sent in nltk.sent_tokenize(text):
+#         tokens = nltk.tokenize.word_tokenize(sent)
+#         tags = st.tag(tokens)
+#         for tag in tags:
+#             if tag[1]=='PERSON': name_set.append(tag[0])
+#         return name_set
 
 #count each name frequence
 def get_all_word_counts(wordunion,entities):
-
     word_counts=dict((el,0) for el in wordunion)
     for word in entities:
         if word in word_counts:     #If not already there
@@ -174,9 +172,8 @@ def get_all_word_counts(wordunion,entities):
 def split_name(namelist):
     new_name=[]
     for element in namelist:
-        #new_name.append(element)
         parts=element.split( )
         new_name.append(parts)
-    results_union = set().union(*new_name)
+    # collect both full names and split names
     name_union=list(results_union)
     return name_union
