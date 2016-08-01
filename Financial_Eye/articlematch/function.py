@@ -92,6 +92,7 @@ def articles_similarity(contents,newsarray,ids):
         # fetch the name entity
         name1 = extract_entities(contents[pk1])
         entities1=split_name(name1)
+
         if(article.Source != "BBC"):
             pk1 = pk1+1
             continue
@@ -175,5 +176,6 @@ def split_name(namelist):
         parts=element.split( )
         new_name.append(parts)
     # collect both full names and split names
+    results_union = set().union(*new_name, namelist)
     name_union=list(results_union)
     return name_union
