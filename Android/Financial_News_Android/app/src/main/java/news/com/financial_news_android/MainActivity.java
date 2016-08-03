@@ -114,10 +114,17 @@ public class MainActivity extends Activity
         // See https://g.co/AppIndexing/AndroidStudio for more information.
         client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
 
-
-
+        handler.sendEmptyMessageDelayed(0, 3000);
 
     }
+
+    Handler handler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            findViewById(R.id.loading).setVisibility(View.GONE);
+        }
+    };
 
     @Override
     public void onNavigationDrawerItemSelected(int position) {

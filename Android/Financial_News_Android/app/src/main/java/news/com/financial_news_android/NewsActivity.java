@@ -36,6 +36,8 @@ import cz.msebera.android.httpclient.Header;
 
 public class NewsActivity extends Activity {
 
+    String original = "";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -43,10 +45,11 @@ public class NewsActivity extends Activity {
 
         final Article art = getIntent().getParcelableExtra("article");
         Article temp = SQLite.select(Article_Table.isFav).from(Article.class).where(Article_Table.articleid.is(art.getArticleid())).querySingle();
+        original = String.valueOf(art.getArticleid());
 
         art.setIsFav(temp.getIsFav());
         ((TextView) findViewById(R.id.textView8)).setText(art.getHeadline());
-        ((TextView) findViewById(R.id.textView9)).setText(art.getContent());
+        ((TextView) findViewById(R.id.textView9)).setText("From " + art.getSource() + "\n" + art.getContent());
 
         final ImageView fav = (ImageView) findViewById(R.id.imageView9);
         fav.setImageResource("1".equals(art.getIsFav()) ? R.drawable.favourite_select : R.drawable.favourite_news);
@@ -88,23 +91,23 @@ public class NewsActivity extends Activity {
                     if (i == 0) {
                         view=findViewById(R.id.r1);
                         view.setVisibility(View.VISIBLE);
-                        setRelated(temp,view);
+                        setRelated(temp,view,matches.get(i).getWeight());
                     } else if (i == 1) {
                         view=findViewById(R.id.r2);
                         view.setVisibility(View.VISIBLE);
-                        setRelated(temp,view);
+                        setRelated(temp,view,matches.get(i).getWeight());
                     } else if (i == 2) {
                         view=findViewById(R.id.r3);
                         view.setVisibility(View.VISIBLE);
-                        setRelated(temp,view);
+                        setRelated(temp,view,matches.get(i).getWeight());
                     } else if (i == 3) {
                         view=findViewById(R.id.r4);
                         view.setVisibility(View.VISIBLE);
-                        setRelated(temp,view);
+                        setRelated(temp,view,matches.get(i).getWeight());
                     } else if (i == 4) {
                         view=findViewById(R.id.r5);
                         view.setVisibility(View.VISIBLE);
-                        setRelated(temp,view);
+                        setRelated(temp,view,matches.get(i).getWeight());
                     }
                 }
 
@@ -173,8 +176,64 @@ public class NewsActivity extends Activity {
                     super.onFailure(statusCode, headers, responseString, throwable);
                 }
             });}
+
+            findViewById(R.id.feedback).setVisibility(View.GONE);
         } else {
             findViewById(R.id.relatedstory).setVisibility(View.GONE);
+
+            findViewById(R.id.relevant).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    AsyncHttpClient c = new AsyncHttpClient();
+
+                    RequestParams rp = new RequestParams();
+                    rp.add("format", "json");
+                    rp.add("original", getIntent().getStringExtra("original"));
+                    rp.add("matched", String.valueOf(art.getArticleid()));
+                    rp.add("feedback", "1");
+
+                    c.get("http://137.43.93.133:8000/articlematch/feedback/", rp, new JsonHttpResponseHandler() {
+                        @Override
+                        public void onSuccess(int statusCode, Header[] headers, JSONObject o) {
+                            super.onSuccess(statusCode, headers, o);
+                        }
+
+
+
+
+                        @Override
+                        public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
+                            super.onFailure(statusCode, headers, responseString, throwable);
+                        }
+                    });
+                }
+            });
+
+            findViewById(R.id.irrelevant).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    AsyncHttpClient c = new AsyncHttpClient();
+
+                    RequestParams rp = new RequestParams();
+                    rp.add("format", "json");
+                    rp.add("original", getIntent().getStringExtra("original"));
+                    rp.add("matched", String.valueOf(art.getArticleid()));
+                    rp.add("feedback", "-1");
+
+                    c.get("http://137.43.93.133:8000/articlematch/feedback/", rp, new JsonHttpResponseHandler() {
+                        @Override
+                        public void onSuccess(int statusCode, Header[] headers, JSONObject o) {
+                            super.onSuccess(statusCode, headers, o);
+                        }
+
+
+                        @Override
+                        public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
+                            super.onFailure(statusCode, headers, responseString, throwable);
+                        }
+                    });
+                }
+            });
         }
 
         ImageView iv = (ImageView) findViewById(R.id.imageView10);
@@ -210,12 +269,18 @@ public class NewsActivity extends Activity {
 
 
 
-    public void setRelated(final Article art,View v){
+    public void setRelated(final Article art,View v, double d){
     ((TextView)v.findViewById(R.id.textView2)).
 
-    setText(art.getHeadline()
-
+    setText(art.getHeadline() + " " + d
     );
+
+        ((TextView)v.findViewById(R.id.source)).
+
+                setText("From "
+                        +art.getSource()
+                );
+
     String time = art.getDatetime().split("T")[0];
     ((TextView)v.findViewById(R.id.textView3)).
 
@@ -275,6 +340,7 @@ public class NewsActivity extends Activity {
             public void onClick(View v) {
                 Intent i = new Intent(NewsActivity.this, NewsActivity.class);
                 i.putExtra("article", art);
+                i.putExtra("original", original);
                 NewsActivity.this.startActivity(i);
             }
         });
