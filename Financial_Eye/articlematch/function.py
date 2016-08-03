@@ -117,7 +117,7 @@ def articles_similarity(contents,newsarray,ids):
                         if names_similarity == 0:
                             simi = contents_similarity
                         else:
-                            simi = 0.5 * names_similarity + 0.5 * contents_similarity
+                            simi = 0.5 * names_similarity + contents_similarity
                         # save
                         articlematch = Articlematch(News = article, Match_News=ids[pk2], Weight = names_similarity, Content_similarity = contents_similarity, Name_similarity = names_similarity)
                         articlematch.save()
