@@ -119,7 +119,7 @@ def articles_similarity(contents,newsarray,ids):
                         else:
                             simi = 0.5 * names_similarity + 0.5 * contents_similarity
                         # save
-                        articlematch = Articlematch(News = article, Match_News=ids[pk2], Weight = simi, Content_similarity = contents_similarity, Name_similarity = names_similarity)
+                        articlematch = Articlematch(News = article, Match_News=ids[pk2], Weight = names_similarity, Content_similarity = contents_similarity, Name_similarity = names_similarity)
                         articlematch.save()
                     except Exception as err:
                         print(err)
