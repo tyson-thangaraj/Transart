@@ -8,4 +8,4 @@ from articles.models import  Article
 class ArticlematchSerializer(serializers.ModelSerializer):
     class Meta:
         model = Articlematch
-        fields = ('Match_News', 'News', 'Weight')
+        fields = ('Match_News', 'News', 'Weight', 'Content_similarity', 'Name_similarity', 'User_feedback')

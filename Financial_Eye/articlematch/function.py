@@ -12,15 +12,15 @@ from django.shortcuts import get_object_or_404
 from articles.models import Article
 from django.core import serializers
 from articlematch.models import Articlematch
-from articles.serializers import ArticleSerializer
-from nltk.tag.stanford import StanfordNERTagger
+from nltk import ne_chunk, pos_tag, word_tokenize
+from nltk.tree import Tree
 
 def matcharticlesbydate(th):
 
     news = serializers.serialize("json", Article.objects.filter(DateTime__gte = th))
     news = json.loads(news)
-    bbc_news = serializers.serialize("json", Article.objects.filter(DateTime__gte = th, Source = "BBC"))
-   # print(news)
+    # bbc_news = serializers.serialize("json", Article.objects.filter(DateTime__gte = th, Source = "BBC"))
+    # print(news)
 
     contents=[]
     ID=[]
@@ -43,13 +43,10 @@ def matcharticlesbydate(th):
     #sort the tf-idf and find most important words for each news
     tokens_arrays=X.toarray()
 
-    #name entities
-    name_entities = extract_name_entity(contents)
-    print(name_entities)
     # extract the keywords
     extractKeywords(tokens_arrays, vectorizer, ID)
 
-    articles_similarity(contents,tokens_arrays,ID, name_entities)
+    articles_similarity(contents,tokens_arrays,ID)
 
 
 def lemma_tokenizer(text):
@@ -87,20 +84,19 @@ def extractKeywords(newsarray, vectorizer, ids):
 
 
 # save the matched news to database
-def articles_similarity(contents,newsarray,ids, names):
+def articles_similarity(contents,newsarray,ids):
     pk1 = 0
     for item1 in newsarray:
         pk2 = 0
-
         article = Article.objects.get(pk=ids[pk1])
+        # fetch the name entity
+        name1 = extract_entities(contents[pk1])
+        entities1=split_name(name1)
+
         if(article.Source != "BBC"):
             pk1 = pk1+1
             continue
         for item2 in newsarray:
-            # article2 = Article.objects.get(pk=ids[pk2])
-            # if(article2.Source == "BBC"):
-            #     pk2 = pk2+1
-            #     continue
             if pk1 != pk2:
                 try:
                     get_object_or_404(Articlematch, News=article, Match_News = ids[pk2])
@@ -109,13 +105,21 @@ def articles_similarity(contents,newsarray,ids, names):
                         #get the cosine score of this two articles based on the tf-idf
                         contents_similarity = cosine_similarity(item1, item2)
                         # print(contents_similarity)
-                        names_similarity = name_entity_similarity(names,contents, pk1, pk2)
-                        # print(names[pk1])
-                        # print(names[pk2])
-                        # print(names_similarity)
-                        simi = 0.6 * names_similarity + 0.4 * contents_similarity
+                        name2 = extract_entities(contents[pk2])
+                        entities2=split_name(name2)
+
+                        result= set(entities1+entities2)
+
+                        d1=get_all_word_counts(result,entities1)
+                        d2=get_all_word_counts(result,entities2)
+                        names_similarity = cosine_similarity(list(d1.values()),list(d2.values()))
+                        
+                        if names_similarity == 0:
+                            simi = contents_similarity
+                        else:
+                            simi = 0.5 * names_similarity + 0.5 * contents_similarity
                         # save
-                        articlematch = Articlematch(News = article, Match_News=ids[pk2], Weight = simi, Content_similarity = contents_similarity, Name_similarity = names_similarity)
+                        articlematch = Articlematch(News = article, Match_News=ids[pk2], Weight = names_similarity, Content_similarity = contents_similarity, Name_similarity = names_similarity)
                         articlematch.save()
                     except Exception as err:
                         print(err)
@@ -129,63 +133,49 @@ def articles_similarity(contents,newsarray,ids, names):
 
 
 # Name entities
-def extract_name_entity(contents):
+def extract_entities(text):
+    chunked = ne_chunk(pos_tag(word_tokenize(text)))
+    prev = None
+    continuous_chunk = []
+    current_chunk = []
 
-    # First we set the direct path to the NER Tagger.
-    _model_filename = r'/Users/fanfan/Documents/ucd/S3/01_project/Transart/Temporary Code/ExtractNames/stanford-ner/stanford-ner-2015-04-20/classifiers/english.all.3class.distsim.crf.ser.gz'
-    _path_to_jar = r'/Users/fanfan/Documents/ucd/S3/01_project/Transart/Temporary Code/ExtractNames/stanford-ner/stanford-ner-2015-04-20/stanford-ner.jar'
-    # Then we initialize the NLTK's Stanford NER Tagger API with the DIRECT PATH to the model and .jar file.
-    st = StanfordNERTagger(model_filename=_model_filename, path_to_jar=_path_to_jar)
-    # i = 0
-    name_contents = []
+    for i in chunked:
+        if type(i) == Tree:
+            current_chunk.append(" ".join([token for token, pos in i.leaves()]))
+        elif current_chunk:
+            named_entity = " ".join(current_chunk)
+            if named_entity not in continuous_chunk:
+                continuous_chunk.append(named_entity)
+                current_chunk = []
+        else:
+            continue
 
-    for item in contents:
-        #print(find_name(st,item))
-        name_contents.append((find_name(st,item)))
-    #     i = i+1
-    # print(i)
-    return name_contents
+    return continuous_chunk
 
 #find name entity from certain text
-def find_name(st, text):
-    name_set = []
-    for sent in nltk.sent_tokenize(text):
-        tokens = nltk.tokenize.word_tokenize(sent)
-        tags = st.tag(tokens)
-        for tag in tags:
-            if tag[1]=='PERSON': name_set.append(tag[0])
-        return name_set
-
-#merge two name sets
-def union(a,b):
-    for e in b:
-        if e not in a:
-            a.append(e)
-    return a
+# def find_name(st, text):
+#     name_set = []
+#     for sent in nltk.sent_tokenize(text):
+#         tokens = nltk.tokenize.word_tokenize(sent)
+#         tags = st.tag(tokens)
+#         for tag in tags:
+#             if tag[1]=='PERSON': name_set.append(tag[0])
+#         return name_set
 
 #count each name frequence
-def get_all_word_counts(wordunion,content):
-    tokens = nltk.word_tokenize(content)
-    words=[]
-    for w in tokens:
-        words.append(w)
-
+def get_all_word_counts(wordunion,entities):
     word_counts=dict((el,0) for el in wordunion)
-    for word in words:
+    for word in entities:
         if word in word_counts:     #If not already there
             word_counts[word]+=1          #Increment the count accordingly
     return word_counts
 
-# calculate the cosine similarity of names entities
-def name_entity_similarity(names, contents, pk1, pk2):
-    # print("hello")
-    name_union = union(names[pk1], names[pk2])
-    # print(name_union)
-    d1=get_all_word_counts(name_union,contents[pk1])
-    d2=get_all_word_counts(name_union,contents[pk2])
-    # print(d1)
-    # print(d2)
-    name_similarity = cosine_similarity(list(d1.values()),list(d2.values()))
-    # print(name_similarity)
-    return name_similarity
-
+def split_name(namelist):
+    new_name=[]
+    for element in namelist:
+        parts=element.split( )
+        new_name.append(parts)
+    # collect both full names and split names
+    results_union = set().union(*new_name, namelist)
+    name_union=list(results_union)
+    return name_union
