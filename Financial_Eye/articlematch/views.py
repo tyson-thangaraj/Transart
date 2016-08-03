@@ -61,12 +61,9 @@ def user_feedback(request, format=None):
         cur_number = match.User_feedback
 
         if (cur_number>=0)&(cur_number<=20):
-            pre_number = cur_number - int(feedback)
+            match.Weight += 0.01*int(feedback)
 
-            match.Weight -= 0.01*pre_number
-            match.Weight += 0.01*cur_number
-
-            match.save()
+        match.save()
 
             
         # match.Weight += 0.01*match.User_feedback 
