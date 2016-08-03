@@ -55,9 +55,22 @@ def user_feedback(request, format=None):
     try:
         match = Articlematch.objects.get(News=article, Match_News=matched_article)
         
+        # pre_number = match.User_feedback
+        # pre_weight = 
         match.User_feedback += int(feedback)
-        match.Weight += 0.01*match.User_feedback 
-        match.save()
+        cur_number = match.User_feedback
+
+        if (cur_number>=0)&(cur_number<=20):
+            pre_number = cur_number - int(feedback)
+
+            match.Weight -= 0.01*pre_number
+            match.Weight += 0.01*cur_number
+
+            match.save()
+
+            
+        # match.Weight += 0.01*match.User_feedback 
+        # match.save()
         return Response(status=status.HTTP_200_OK)  
     except Articlematch.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
