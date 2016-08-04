@@ -4,7 +4,6 @@ from datetime import timedelta, datetime
 import sys
 import urllib
 
-from celery.schedules import crontab
 from celery.task import periodic_task, task
 from django.shortcuts import get_object_or_404
 from django.utils.timezone import utc
