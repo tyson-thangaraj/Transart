@@ -58,8 +58,12 @@ def getArticleDetailsByUrl(url):
         soup = BeautifulSoup(page,"html.parser")
         soup.prettify()
         source = "BBC"
-        tag = soup.find("div", attrs={"class": "date date--v2"})
-        date = tag.get_text()
+        newsscripts = str(soup.find("script", attrs={"type": "application/ld+json"}).string)
+
+        from json import loads as JSON
+        parsed = JSON(newsscripts)
+        date = parsed['datePublished']
+
         if "GMT" in date:
             date = datetime.strptime(date, "%d %B %Y")
         else:
