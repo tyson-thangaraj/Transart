@@ -40,7 +40,7 @@ def scrapAll():
             scrapRSSFeed('http://business.asiaone.com/rss.xml')  #AsiaOne Business
 
             # Match -- Three Days News
-            th = datetime.now().replace(tzinfo=utc) - timedelta(days=3)
+            th = datetime.now().replace(tzinfo=utc) - timedelta(days=5)
             matcharticlesbydate(th)
 
 
