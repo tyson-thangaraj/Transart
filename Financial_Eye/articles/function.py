@@ -12,6 +12,9 @@ from http.cookiejar import CookieJar
 #------ google translate --------
 from googleapiclient.discovery import build
 
+from django.utils.timezone import utc
+from datetime import timedelta, datetime
+
 def createArticleObject(title, subtitle, body, date, keywords, url, type, source, image):
     #print([title, subtitle, body, date, keywords, url, type, source, image])
 
@@ -38,7 +41,6 @@ def getArticleDetailsByUrl(url):
     article.download()
     article.parse()
 
-
     title = article.title
     sub_title=article.meta_description
     # authors = article.authors
@@ -59,8 +61,6 @@ def getArticleDetailsByUrl(url):
         tag = soup.find("span", attrs={"class": "greyTxt6 block mb15"}).get_text()
         date = str.split(tag, ':  ')[1]
 
-        from django.utils.timezone import utc
-        from datetime import timedelta, datetime
         date = datetime.strptime(date, "%Y-%m-%d %H:%M")
         date = date.replace(tzinfo=utc) - timedelta(hours=8)
     elif "bbc" in url:
@@ -72,7 +72,8 @@ def getArticleDetailsByUrl(url):
 
         from json import loads as JSON
         parsed = JSON(newsscripts)
-        date = parsed['datePublished']
+        date0 = parsed['datePublished']
+        date = datetime.strptime(date0, "%Y-%m-%dT%H:%M:%S+01:00")
 
         if "GMT" in date:
             date = datetime.strptime(date, "%d %B %Y")
