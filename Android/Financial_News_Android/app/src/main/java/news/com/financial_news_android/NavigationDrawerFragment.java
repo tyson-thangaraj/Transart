@@ -63,6 +63,9 @@ public class NavigationDrawerFragment extends Fragment {
 
     TextView tv;
 
+    String username = "";
+    static boolean isUser = false;
+
     public NavigationDrawerFragment() {
     }
 
@@ -91,6 +94,8 @@ public class NavigationDrawerFragment extends Fragment {
         setHasOptionsMenu(true);
     }
 
+    TextView in_out;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -98,19 +103,31 @@ public class NavigationDrawerFragment extends Fragment {
                 R.layout.drawer_main, container, false);
 
         tv = (TextView) draw.findViewById(R.id.editText);
-        tv.setText(PreferenceManager.getDefaultSharedPreferences(getActivity()).getString("user", ""));
+        //tv.setText(PreferenceManager.getDefaultSharedPreferences(getActivity()).getString("user", ""));
+
+        in_out = (TextView) draw.findViewById(R.id.textView5);
+
         draw.findViewById(R.id.logout).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                username = "";
+                isUser = false;
+
                 Intent i = new Intent(getActivity(), Login.class);
-                getActivity().startActivity(i);
-                getActivity().finish();
+                getActivity().startActivityForResult(i, 0);
+                //getActivity().finish();
             }
         });
 
         draw.findViewById(R.id.linearLayout3).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if ("".equals(username)) {
+                    Intent i = new Intent(getActivity(), Login.class);
+                    getActivity().startActivityForResult(i, 0);
+                    return;
+                }
+
                 Intent i = new Intent(getActivity(), FavsActivity.class);
                 getActivity().startActivity(i);
             }
@@ -129,6 +146,31 @@ public class NavigationDrawerFragment extends Fragment {
 
     public boolean isDrawerOpen() {
         return mDrawerLayout != null && mDrawerLayout.isDrawerOpen(mFragmentContainerView);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (data != null) {
+            username = data.getStringExtra("user");
+
+            if (!"".equals(username) && username != null) {
+                isUser = true;
+                tv.setText(username);
+                in_out.setText("Log out");
+            } else {
+                isUser = false;
+                username = "";
+                tv.setText(username);
+                in_out.setText("Log in");
+            }
+        } else {
+            isUser = false;
+            username = "";
+            tv.setText(username);
+            in_out.setText("Log in");
+        }
     }
 
     /**
