@@ -92,18 +92,17 @@
                 android:layout_marginBottom="20dp"
                 >
                 <Button
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="relevant"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
                     android:id="@+id/relevant"
-                    />
+                    android:background="@drawable/like"
+                    android:layout_marginRight="10dp" />
 
                 <Button
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="irrelevant"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
                     android:id="@+id/irrelevant"
-                    />
+                    android:background="@drawable/dislike" />
 
 
             </LinearLayout>

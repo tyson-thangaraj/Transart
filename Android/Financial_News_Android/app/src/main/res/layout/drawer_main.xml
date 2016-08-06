@@ -31,7 +31,6 @@
             android:layout_height="wrap_content"
             android:id="@+id/editText"
             android:layout_weight="1"
-            android:text="David"
             android:textColor="#ffffff"
             android:layout_marginLeft="10dp"
             android:textSize="25sp" />
@@ -88,7 +87,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Log out"
+            android:text="Log in"
             android:layout_marginLeft="10dp"
             android:textColor="#000000"
             android:id="@+id/textView5"
