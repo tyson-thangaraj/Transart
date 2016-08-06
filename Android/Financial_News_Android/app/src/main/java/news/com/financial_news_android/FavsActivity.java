@@ -123,6 +123,10 @@ public class FavsActivity extends Activity {
                     final ImageView iv = ((ImageView)v.findViewById(R.id.imageView2));
                     iv.setTag(art);
 
+                    if ("Sina".equals(art.getSource())) {
+                        iv.setImageResource(R.drawable.sina);
+                    } else {
+
                     if (art.getImage() != null && !"".equals(art.getImage())) {
 
                         File file = imageExsit(Base64.encodeToString(art.getImage().getBytes(), Base64.DEFAULT) + ".jpg");
@@ -166,7 +170,7 @@ public class FavsActivity extends Activity {
 
                     } else {
                         setDefaultPic(iv);
-                    }
+                    }}
 
                     return v;
                 }

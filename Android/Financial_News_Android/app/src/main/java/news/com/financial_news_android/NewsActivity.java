@@ -252,7 +252,14 @@ public class NewsActivity extends Activity {
         }
 
         ImageView iv = (ImageView) findViewById(R.id.imageView10);
+
+
+
         if (art.getImage() != null && !"".equals(art.getImage())) {
+            if ("Sina".equals(art.getSource())) {
+                iv.setImageResource(R.drawable.sina);
+            } else {
+
 
             File file = imageExsit(Base64.encodeToString(art.getImage().getBytes(), Base64.DEFAULT) + ".jpg");
             //ImageLoader.getInstance().displayImage(Uri.fromFile(file).toString(), iv);
@@ -266,7 +273,7 @@ public class NewsActivity extends Activity {
                 }
             else {
                 iv.setVisibility(View.GONE);
-            }
+            }}
 
 
         } else {
@@ -311,6 +318,9 @@ public class NewsActivity extends Activity {
     ))
 
     {
+        if ("Sina".equals(art.getSource())) {
+            iv.setImageResource(R.drawable.sina);
+        } else {
 
         File file = imageExsit(Base64.encodeToString(art.getImage().getBytes(), Base64.DEFAULT) + ".jpg");
         //ImageLoader.getInstance().displayImage(Uri.fromFile(file).toString(), iv);
@@ -348,7 +358,7 @@ public class NewsActivity extends Activity {
 
                 }
             });
-        }
+        }}
 
         v.setOnClickListener(new View.OnClickListener() {
             @Override
