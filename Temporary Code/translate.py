@@ -4,6 +4,8 @@ from bs4 import BeautifulSoup
 import newspaper
 import urllib
 from http.cookiejar import CookieJar
+from datetime import timedelta, datetime
+from datetime import datetime
 
 
 # google translate API 
@@ -111,15 +113,20 @@ def getArticleDetailsByUrl(url):
         newsscripts = str(soup.find("script", attrs={"type": "application/ld+json"}).string)
 
         from json import loads as JSON
+        from django.utils.timezone import utc
+        from datetime import timedelta, datetime
         parsed = JSON(newsscripts)
-        date = parsed['datePublished']
+        date0 = parsed['datePublished']
+        print(date0)
+        date = datetime.strptime(date0, "%Y-%m-%dT%H:%M:%S+01:00")
+        print(date)
 
-        if "GMT" in date:
-            date = datetime.strptime(date, "%d %B %Y")
-        else:
-            date = datetime.strptime(date, "%d %B %Y")
-            local_dt = pytz.timezone('Europe/Dublin').localize(date, is_dst=None)
-            date = local_dt.astimezone(pytz.utc)
+        # if "GMT" in date:
+        #     date = datetime.strptime(date, "%d %B %Y")
+        # else:
+        #     date = datetime.strptime(date, "%d %B %Y")
+        #     local_dt = pytz.timezone('Europe/Dublin').localize(date, is_dst=None)
+        #     date = local_dt.astimezone(pytz.utc)
     elif "sina" in url:
         page = urllib.request.urlopen(url).read()
         soup = BeautifulSoup(page,"html.parser",from_encoding="GB18030")
@@ -171,4 +178,7 @@ def getArticleDetailsByUrl(url):
     #return [title, sub_title, news_content, date, keywords, source, image]
     
 
-scrapRSSFeed('http://rss.sina.com.cn/roll/finance/hot_roll.xml')
+#scrapRSSFeed('http://rss.sina.com.cn/roll/finance/hot_roll.xml')
+
+url = 'http://www.bbc.com/news/business-36973936'
+getArticleDetailsByUrl(url)

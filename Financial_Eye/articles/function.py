@@ -72,8 +72,9 @@ def getArticleDetailsByUrl(url):
 
         from json import loads as JSON
         parsed = JSON(newsscripts)
-        date0 = parsed['datePublished']
-        date = datetime.strptime(date0, "%Y-%m-%dT%H:%M:%S+01:00")
+        date = parsed['datePublished']
+        # date0 = parsed['datePublished']
+        # date = datetime.strptime(date0, "%Y-%m-%dT%H:%M:%S+01:00")
 
     elif "nytimes" in url:
         source="The New York Times"
