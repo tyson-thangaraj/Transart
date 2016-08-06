@@ -97,7 +97,7 @@ def scrapRSSFeed(feed):
 
             except Exception as err:
                 print(err)
-                print("Failed adding article " + url)
+                print("News Existed. " + url)
                 pass
             else:
                 print("Add New Article:" + article.Headline)
