@@ -107,9 +107,9 @@ public class MainActivity extends Activity
         mTitle = getTitle();
 
         // Set up the drawer.
-        mNavigationDrawerFragment.setUp(
-                R.id.navigation_drawer,
-                (DrawerLayout) findViewById(R.id.drawer_layout));
+        //mNavigationDrawerFragment.setUp(
+        //        R.id.navigation_drawer,
+        //(DrawerLayout) findViewById(R.id.drawer_layout));
         // ATTENTION: This was auto-generated to implement the App Indexing API.
         // See https://g.co/AppIndexing/AndroidStudio for more information.
         client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
@@ -125,6 +125,13 @@ public class MainActivity extends Activity
             findViewById(R.id.loading).setVisibility(View.GONE);
         }
     };
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        mNavigationDrawerFragment.onActivityResult(requestCode, resultCode, data);
+    }
 
     @Override
     public void onNavigationDrawerItemSelected(int position) {
@@ -236,19 +243,26 @@ public class MainActivity extends Activity
             }
         };
 
+        String time3;
         public void refresh(){
             swipeContainer.setRefreshing(true);
 
             SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             Calendar cal = Calendar.getInstance();
-            cal.add(Calendar.DATE, -3);
+            cal.add(Calendar.DATE, -5);
             String requestDatetime = df.format(cal.getTime());
             String[] s = requestDatetime.split(" ");
             requestDatetime = s[0] + "T" + s[1] + "Z";
 
+            Calendar cal3 = Calendar.getInstance();
+            cal3.add(Calendar.DATE, -3);
+            time3 = df.format(cal3.getTime());
+            String[] s3 = time3.split(" ");
+            time3 = s3[0] + "T" + s3[1] + "Z";
+
             SQLite.delete(Article.class).where(Article_Table.datetime.lessThanOrEq(requestDatetime))
                     .and(Article_Table.isFav.isNot("1")).execute();
-            articles = SQLite.select().from(Article.class).where(Article_Table.source.is("BBC")).orderBy(Article_Table.datetime, false).queryList();
+            articles = SQLite.select().from(Article.class).where(Article_Table.source.is("BBC")).and(Article_Table.datetime.greaterThanOrEq(time3)).orderBy(Article_Table.datetime, false).queryList();
 
             if (articles != null && articles.size() > 0) {
                 if (lv.getAdapter() == null || lv.getAdapter().getCount() == 0) {
@@ -298,7 +312,7 @@ public class MainActivity extends Activity
 
                             articles.add(art);
 
-                            if ("BBC".equals(art.getSource())) {
+                            if ("BBC".equals(art.getSource()) && art.getDatetime().compareTo(time3) >= 0) {
                                 bbc.add(art);
                             }
 

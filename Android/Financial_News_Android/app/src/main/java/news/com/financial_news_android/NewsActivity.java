@@ -52,6 +52,9 @@ public class NewsActivity extends Activity {
         ((TextView) findViewById(R.id.textView9)).setText("From " + art.getSource() + "\n" + art.getContent());
 
         final ImageView fav = (ImageView) findViewById(R.id.imageView9);
+        if (!NavigationDrawerFragment.isUser) {
+            fav.setVisibility(View.GONE);
+        }
         fav.setImageResource("1".equals(art.getIsFav()) ? R.drawable.favourite_select : R.drawable.favourite_news);
         fav.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -81,6 +84,11 @@ public class NewsActivity extends Activity {
 
                 int size = matches.size();
                 findViewById(R.id.relatedstory).setVisibility(size==0?View.GONE:View.VISIBLE);
+                findViewById(R.id.r1).setVisibility(View.GONE);
+                findViewById(R.id.r2).setVisibility(View.GONE);
+                findViewById(R.id.r3).setVisibility(View.GONE);
+                findViewById(R.id.r4).setVisibility(View.GONE);
+                findViewById(R.id.r5).setVisibility(View.GONE);
                 for (int i = 0; i < size; i++) {
                     Article temp = SQLite.select().from(Article.class).where(Article_Table.articleid.is(matches.get(i).getMatchid())).querySingle();
                     if (temp == null) {
@@ -123,7 +131,8 @@ public class NewsActivity extends Activity {
 
             if (ms.size() > 0) {
                 h.sendMessage(Message.obtain(h, 1, mms));
-            } else {
+            }
+            //else {
 
             AsyncHttpClient c = new AsyncHttpClient();
 
@@ -163,6 +172,8 @@ public class NewsActivity extends Activity {
 
                     if(matches.size()>0)
                     {
+                        SQLite.delete(Match.class).where(Match_Table.articleid.eq(art.getArticleid()))
+                                .execute();
                     FastStoreModelTransaction.insertBuilder(FlowManager.getModelAdapter(Match.class))
                             .addAll(matches).build().execute(FlowManager.getDatabase(AppDatabase.class).getWritableDatabase());
 
@@ -175,9 +186,13 @@ public class NewsActivity extends Activity {
                 public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
                     super.onFailure(statusCode, headers, responseString, throwable);
                 }
-            });}
+            });
+            //}
 
-            findViewById(R.id.feedback).setVisibility(View.GONE);
+            String o = getIntent().getStringExtra("original");
+            if (o == null || "".equals(o)) {
+                findViewById(R.id.feedback).setVisibility(View.GONE);
+            }
         } else {
             findViewById(R.id.relatedstory).setVisibility(View.GONE);
 

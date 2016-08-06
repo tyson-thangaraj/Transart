@@ -128,10 +128,13 @@ public class Login extends AppCompatActivity implements LoaderCallbacks<Cursor> 
                         }
 
                         if ("Sucessfully login".equals(info)) {
-                            PreferenceManager.getDefaultSharedPreferences(Login.this).edit().putString("user", mEmailView.getText().toString()).commit();
+                            //PreferenceManager.getDefaultSharedPreferences(Login.this).edit().putString("user", mEmailView.getText().toString()).commit();
 
-                            Intent i = new Intent(Login.this, MainActivity.class);
-                            Login.this.startActivity(i);
+                            //Intent i = new Intent(Login.this, MainActivity.class);
+                            //Login.this.startActivity(i);
+                            Intent i = getIntent();
+                            i.putExtra("user", mEmailView.getText().toString());
+                            Login.this.setResult(0, i);
                             Login.this.finish();
                         } else {
                             Toast.makeText(Login.this, info, Toast.LENGTH_LONG).show();
@@ -173,13 +176,16 @@ public class Login extends AppCompatActivity implements LoaderCallbacks<Cursor> 
                     public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                         super.onSuccess(statusCode, headers, response);
 
-                        PreferenceManager.getDefaultSharedPreferences(Login.this).edit().putString("user", mEmailView.getText().toString()).commit();
+                        //PreferenceManager.getDefaultSharedPreferences(Login.this).edit().putString("user", mEmailView.getText().toString()).commit();
 
-                        Intent i = new Intent(Login.this, MainActivity.class);
-                        Login.this.startActivity(i);
+                        //Intent i = new Intent(Login.this, MainActivity.class);
+                        //Login.this.startActivity(i);
+                        //Login.this.finish();
+
+                        Intent i = getIntent();
+                        i.putExtra("user", mEmailView.getText().toString());
+                        Login.this.setResult(0, i);
                         Login.this.finish();
-
-
 
                     }
 
