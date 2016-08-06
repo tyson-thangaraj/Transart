@@ -75,12 +75,6 @@ def getArticleDetailsByUrl(url):
         date0 = parsed['datePublished']
         date = datetime.strptime(date0, "%Y-%m-%dT%H:%M:%S+01:00")
 
-        if "GMT" in date:
-            date = datetime.strptime(date, "%d %B %Y")
-        else:
-            date = datetime.strptime(date, "%d %B %Y")
-            local_dt = pytz.timezone('Europe/Dublin').localize(date, is_dst=None)
-            date = local_dt.astimezone(pytz.utc)
     elif "nytimes" in url:
         source="The New York Times"
         cj = CookieJar()
