@@ -4,7 +4,6 @@ from datetime import timedelta, datetime
 import sys
 import urllib
 
-from celery.schedules import crontab
 from celery.task import periodic_task, task
 from django.shortcuts import get_object_or_404
 from django.utils.timezone import utc
@@ -29,16 +28,16 @@ def scrapAll():
         if have_lock:
             print(lock_id + " lock acquired!")
 
-            # scrapRSSFeed('http://feeds.bbci.co.uk/news/business/rss.xml')
-            # scrapRSSFeed('http://www.chinadaily.com.cn/rss/world_rss.xml')
-            # scrapRSSFeed('http://feeds.nytimes.com/nyt/rss/Business')
-            # scrapRSSFeed('http://feeds.reuters.com/reuters/businessNews')
-            # scrapRSSFeed('http://rss.sina.com.cn/roll/finance/hot_roll.xml')
+            scrapRSSFeed('http://feeds.bbci.co.uk/news/business/rss.xml')
+            scrapRSSFeed('http://www.chinadaily.com.cn/rss/world_rss.xml')
+            scrapRSSFeed('http://feeds.nytimes.com/nyt/rss/Business')
+            scrapRSSFeed('http://feeds.reuters.com/reuters/businessNews')
+            scrapRSSFeed('http://rss.sina.com.cn/roll/finance/hot_roll.xml')
 
-            # #scrapRSSFeed('http://www.channelnewsasia.com/starterkit/servlet/cna/rss/business.xml')
-            # # scrapRSSFeed('http://www.spiegel.de/international/business/index.rss')   #spiegel online international no update
-            # scrapRSSFeed('http://www.france24.com/en/timeline/rss')
-            # scrapRSSFeed('http://business.asiaone.com/rss.xml')  #AsiaOne Business
+            #scrapRSSFeed('http://www.channelnewsasia.com/starterkit/servlet/cna/rss/business.xml')
+            # scrapRSSFeed('http://www.spiegel.de/international/business/index.rss')   #spiegel online international no update
+            scrapRSSFeed('http://www.france24.com/en/timeline/rss')
+            scrapRSSFeed('http://business.asiaone.com/rss.xml')  #AsiaOne Business
 
             # Match -- Three Days News
             th = datetime.now().replace(tzinfo=utc) - timedelta(days=3)

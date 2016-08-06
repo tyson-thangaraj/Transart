@@ -52,14 +52,28 @@ def getArticleDetailsByUrl(url):
 
     source = "other"
     if "chinadaily" in url:
+        page = urllib.request.urlopen(url).read()
+        soup = BeautifulSoup(page,"html.parser")
+        soup.prettify()
         source = "ChinaDaily"
+        tag = soup.find("span", attrs={"class": "greyTxt6 block mb15"}).get_text()
+        date = str.split(tag, ':  ')[1]
+
+        from django.utils.timezone import utc
+        from datetime import timedelta, datetime
+        date = datetime.strptime(date, "%Y-%m-%d %H:%M")
+        date = date.replace(tzinfo=utc) - timedelta(hours=7)
     elif "bbc" in url:
         page = urllib.request.urlopen(url).read()
         soup = BeautifulSoup(page,"html.parser")
         soup.prettify()
         source = "BBC"
-        tag = soup.find("div", attrs={"class": "date date--v2"})
-        date = tag.get_text()
+        newsscripts = str(soup.find("script", attrs={"type": "application/ld+json"}).string)
+
+        from json import loads as JSON
+        parsed = JSON(newsscripts)
+        date = parsed['datePublished']
+
         if "GMT" in date:
             date = datetime.strptime(date, "%d %B %Y")
         else:
