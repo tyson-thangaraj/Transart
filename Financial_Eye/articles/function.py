@@ -12,6 +12,9 @@ from http.cookiejar import CookieJar
 #------ google translate --------
 from googleapiclient.discovery import build
 
+from django.utils.timezone import utc
+from datetime import timedelta, datetime
+
 def createArticleObject(title, subtitle, body, date, keywords, url, type, source, image):
     #print([title, subtitle, body, date, keywords, url, type, source, image])
 
@@ -38,7 +41,6 @@ def getArticleDetailsByUrl(url):
     article.download()
     article.parse()
 
-
     title = article.title
     sub_title=article.meta_description
     # authors = article.authors
@@ -59,10 +61,8 @@ def getArticleDetailsByUrl(url):
         tag = soup.find("span", attrs={"class": "greyTxt6 block mb15"}).get_text()
         date = str.split(tag, ':  ')[1]
 
-        from django.utils.timezone import utc
-        from datetime import timedelta, datetime
         date = datetime.strptime(date, "%Y-%m-%d %H:%M")
-        date = date.replace(tzinfo=utc) - timedelta(hours=7)
+        date = date.replace(tzinfo=utc) - timedelta(hours=8)
     elif "bbc" in url:
         page = urllib.request.urlopen(url).read()
         soup = BeautifulSoup(page,"html.parser")
@@ -72,7 +72,8 @@ def getArticleDetailsByUrl(url):
 
         from json import loads as JSON
         parsed = JSON(newsscripts)
-        date = parsed['datePublished']
+        date0 = parsed['datePublished']
+        date = datetime.strptime(date0, "%Y-%m-%dT%H:%M:%S+01:00")
 
         if "GMT" in date:
             date = datetime.strptime(date, "%d %B %Y")
@@ -91,26 +92,26 @@ def getArticleDetailsByUrl(url):
         date = datetime.strptime(tag, "%Y%m%d%H%M%S")
     elif "reuters" in url:
         source="Reuters"
-    elif "people" in url:
-        source = "People"
-        title = str.split(title, '--')[0]
-        page = urllib.request.urlopen(url).read()
-        soup = BeautifulSoup(page,"html.parser")
-        soup.prettify()
-        news_content=''
-        for tag in soup.find("div", attrs={"class": "box_con"}).find_all("p"):
-            if "script" not in tag.get_text():
-                news_content += tag.get_text() + '\n'
+    # elif "people" in url:
+    #     source = "People"
+    #     title = str.split(title, '--')[0]
+    #     page = urllib.request.urlopen(url).read()
+    #     soup = BeautifulSoup(page,"html.parser")
+    #     soup.prettify()
+    #     news_content=''
+    #     for tag in soup.find("div", attrs={"class": "box_con"}).find_all("p"):
+    #         if "script" not in tag.get_text():
+    #             news_content += tag.get_text() + '\n'
         
-        # translation
-        originalText = [title, sub_title, news_content]
-        translatedText = googleTranslate(originalText)
+        # # translation
+        # originalText = [title, sub_title, news_content]
+        # translatedText = googleTranslate(originalText)
 
-        title = translatedText['translations'][0]['translatedText']
-        sub_title= translatedText['translations'][1]['translatedText']
-        news_content = translatedText['translations'][2]['translatedText']
+        # title = translatedText['translations'][0]['translatedText']
+        # sub_title= translatedText['translations'][1]['translatedText']
+        # news_content = translatedText['translations'][2]['translatedText']
         
-        keywords = extractKeywords(title)
+        # keywords = extractKeywords(title)
     elif "sina" in url:
         page = urllib.request.urlopen(url).read()
         soup = BeautifulSoup(page,"html.parser",from_encoding="GB18030")
@@ -118,18 +119,25 @@ def getArticleDetailsByUrl(url):
         source = "Sina"
         title = str.split(soup.title.string, '|')[0]
         sub_title = soup.head.find("meta",attrs={"name":"description"}).get('content')
-        news_content=''
+        news_content = ' '
+        news_content_list = []
         for tag in soup.find("div", attrs={"id": "artibody"}).find_all("p"):
             if "JavaScript" not in tag.get_text():
-                news_content += tag.get_text() + '\n'
-        
-        # translation
-        originalText = [title, sub_title, news_content]
+                # news_content += tag.get_text() + '\n'
+                news_content_list.append(tag.get_text())
+
+        # tranlate content
+        translated_content = googleTranslate(news_content_list)
+
+        for item in translated_content['translations']:
+            news_content += item['translatedText'] + '\n'
+
+        # translate title and sub_title    
+        originalText = [title, sub_title]
         translatedText = googleTranslate(originalText)
 
         title = translatedText['translations'][0]['translatedText']
         sub_title= translatedText['translations'][1]['translatedText']
-        news_content = translatedText['translations'][2]['translatedText']
 
         keywords = extractKeywords(title)
     elif "channelnewsasia" in url:
