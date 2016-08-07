@@ -49,7 +49,17 @@ public class NewsActivity extends Activity {
 
         art.setIsFav(temp.getIsFav());
         ((TextView) findViewById(R.id.textView8)).setText(art.getHeadline());
-        ((TextView) findViewById(R.id.textView9)).setText("From " + art.getSource() + "\n" + art.getContent());
+
+        String keyword = art.getKeywords();
+        keyword = keyword.substring(1);
+        keyword = keyword.substring(0, keyword.length() - 1);
+        keyword = keyword.replace(",", " ");
+        keyword = "Keywords: " + keyword.replace("'", "");
+        ((TextView) findViewById(R.id.keywords)).setText(keyword);
+
+        ((TextView) findViewById(R.id.source)).setText("From " + art.getSource() + " " + art.getDatetime());
+
+        ((TextView) findViewById(R.id.textView9)).setText(art.getContent());
 
         final ImageView fav = (ImageView) findViewById(R.id.imageView9);
         if (!NavigationDrawerFragment.isUser) {

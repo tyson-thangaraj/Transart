@@ -167,6 +167,8 @@ public class Article extends BaseModel implements Parcelable {
         out.writeString(image);
         out.writeString(source);
         out.writeString(isFav);
+        out.writeString(keywords);
+        out.writeString(datetime);
     }
 
     // this is used to regenerate your object. All Parcelables must have a CREATOR that implements these two methods
@@ -191,5 +193,7 @@ public class Article extends BaseModel implements Parcelable {
         image = in.readString();
         source = in.readString();
         isFav = in.readString();
+        keywords = in.readString();
+        datetime = in.readString();
     }
 }
