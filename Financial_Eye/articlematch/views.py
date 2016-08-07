@@ -15,7 +15,7 @@ from rest_framework.response import Response
 from rest_framework import status
 
 class MatchFilter(filters.FilterSet):
-    selectedArticleID = django_filters.ModelChoiceFilter(name='News', queryset=Article.objects.all())
+    selectedArticleID = django_filters.ModelChoiceFilter(name='News', queryset=Article.objects.filter(Source='BBC'))
     class Meta:
         model = Articlematch
         fields = ['selectedArticleID']

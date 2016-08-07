@@ -114,10 +114,11 @@ def articles_similarity(contents,newsarray,ids):
                         d2=get_all_word_counts(result,entities2)
                         names_similarity = cosine_similarity(list(d1.values()),list(d2.values()))
                         
-                        if names_similarity == 0:
-                            simi = contents_similarity
-                        else:
-                            simi = 0.5 * names_similarity + contents_similarity
+                        # if names_similarity == 0:
+                        #     simi = 0.8 * contents_similarity
+                        # else:
+                        #     simi = (0.5 * names_similarity + contents_similarity) * 0.8
+                        simi = contents_similarity + 0.5 * names_similarity
                         # save
                         articlematch = Articlematch(News = article, Match_News=ids[pk2], Weight = simi, Content_similarity = contents_similarity, Name_similarity = names_similarity)
                         articlematch.save()
