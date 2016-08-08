@@ -112,8 +112,24 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
+                android:orientation="vertical"
                 android:id="@+id/feedback"
+                >
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="We'd appreciate it if you could vote up or down on the news recommendation service, especially on this article."
+                    android:textColor="#000000"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="10dp"
+                    android:layout_marginBottom="10dp"
+                    android:textSize="15sp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
                 android:gravity="center"
                 android:layout_marginBottom="20dp"
                 >
@@ -131,6 +147,7 @@
                     android:background="@drawable/dislike" />
 
 
+            </LinearLayout>
             </LinearLayout>
 
             <LinearLayout
@@ -161,6 +178,20 @@
             <include layout="@layout/listview_item_main" android:id="@+id/r5"                android:visibility="gone"></include>
 
             </LinearLayout>
+
+            <TextView
+                android:id="@+id/no_relevant"
+                android:visibility="visible"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="There is no relevant news."
+                android:textColor="@color/colorAccent"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:layout_marginBottom="10dp"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                />
         </LinearLayout>
 
     </ScrollView>

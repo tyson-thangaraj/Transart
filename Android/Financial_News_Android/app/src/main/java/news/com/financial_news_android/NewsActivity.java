@@ -57,7 +57,9 @@ public class NewsActivity extends Activity {
         keyword = "Keywords: " + keyword.replace("'", "");
         ((TextView) findViewById(R.id.keywords)).setText(keyword);
 
-        ((TextView) findViewById(R.id.source)).setText("From " + art.getSource() + " " + art.getDatetime());
+        String t = art.getDatetime().replace("T", " ");
+        t = t.replace("Z", "");
+        ((TextView) findViewById(R.id.source)).setText("From " + art.getSource() + " " + t);
 
         ((TextView) findViewById(R.id.textView9)).setText(art.getContent());
 
@@ -93,14 +95,28 @@ public class NewsActivity extends Activity {
                 ArrayList<Match> matches = (ArrayList<Match>) msg.obj;
 
                 int size = matches.size();
+                ArrayList<Article> as = new ArrayList<Article>();
+                for (int i = size - 1; i > -1; i--) {
+                    Article temp = SQLite.select().from(Article.class).where(Article_Table.articleid.is(matches.get(i).getMatchid())).querySingle();
+
+                    if (!"BBC".equals(temp.getSource())) {
+                        as.add(0, temp);
+                    } else {
+                        as.add(temp);
+                    }
+                }
+
+
                 findViewById(R.id.relatedstory).setVisibility(size==0?View.GONE:View.VISIBLE);
+                findViewById(R.id.no_relevant).setVisibility(size==0?View.VISIBLE:View.GONE);
                 findViewById(R.id.r1).setVisibility(View.GONE);
                 findViewById(R.id.r2).setVisibility(View.GONE);
                 findViewById(R.id.r3).setVisibility(View.GONE);
                 findViewById(R.id.r4).setVisibility(View.GONE);
                 findViewById(R.id.r5).setVisibility(View.GONE);
                 for (int i = 0; i < size; i++) {
-                    Article temp = SQLite.select().from(Article.class).where(Article_Table.articleid.is(matches.get(i).getMatchid())).querySingle();
+                    //Article temp = SQLite.select().from(Article.class).where(Article_Table.articleid.is(matches.get(i).getMatchid())).querySingle();
+                    Article temp = as.get(i);
                     if (temp == null) {
                         continue;
                     }
@@ -304,7 +320,7 @@ public class NewsActivity extends Activity {
     public void setRelated(final Article art,View v, double d){
     ((TextView)v.findViewById(R.id.textView2)).
 
-    setText(art.getHeadline() + " " + d
+    setText(art.getHeadline()
     );
 
         ((TextView)v.findViewById(R.id.source)).
