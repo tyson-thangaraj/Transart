@@ -39,11 +39,11 @@ def scrapAll():
             # scrapRSSFeed('http://www.france24.com/en/timeline/rss')
             # scrapRSSFeed('http://business.asiaone.com/rss.xml')  #AsiaOne Business
             # scrapRSSFeed('http://www.xinhuanet.com/english/rss/businessrss.xml')  #China Xinhua Net
-            scrapRSSFeed('http://rss.cnn.com/rss/money_news_international.rssn.com/rss/money_news_international.rss') #CNN
+            # scrapRSSFeed('http://rss.cnn.com/rss/money_news_international.rssn.com/rss/money_news_international.rss') #CNN
 
             # Match -- Three Days News
             th = datetime.now().replace(tzinfo=utc) - timedelta(days=3)
-            # matcharticlesbydate(th)
+            matcharticlesbydate(th)
 
 
         else:
