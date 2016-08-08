@@ -38,7 +38,7 @@ def scrapAll():
             # # scrapRSSFeed('http://www.spiegel.de/international/business/index.rss')   #spiegel online international no update
             # scrapRSSFeed('http://www.france24.com/en/timeline/rss')
             # scrapRSSFeed('http://business.asiaone.com/rss.xml')  #AsiaOne Business
-            scrapRSSFeed('http://www.xinhuanet.com/english/rss/businessrss.xml')  #China Xinhua Net
+            # scrapRSSFeed('http://www.xinhuanet.com/english/rss/businessrss.xml')  #China Xinhua Net
             scrapRSSFeed('http://rss.cnn.com/rss/money_news_international.rssn.com/rss/money_news_international.rss') #CNN
 
             # Match -- Three Days News
