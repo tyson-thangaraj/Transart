@@ -142,6 +142,8 @@ def getArticleDetailsByUrl(url):
             if "JavaScript" not in tag.get_text():
                 print(tag.get_text())
                 print("||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||")
+                print(tag.get_text()+ '\n')
+                print("||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||")
                 news_content += tag.get_text() + '\n'
                 news_content_list.append(tag.get_text())
         
@@ -159,7 +161,7 @@ def getArticleDetailsByUrl(url):
         #     print(paragraph_translated)
            # translatedText += paragraph_translated['translations'][0]
         translatedText = googleTranslate(news_content_list)
-        print(translatedText)
+        # print(translatedText)
         a = ' '
         for item in translatedText['translations']:
             a += item['translatedText'] + '\n'
@@ -170,9 +172,10 @@ def getArticleDetailsByUrl(url):
 
 # #         keywords = extractKeywords(title)
         
-        print(translatedText)
+        
         print(a)
         print("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
+        print(translatedText)
 
 
     #return [title, sub_title, news_content, date, keywords, source, image]
@@ -180,5 +183,6 @@ def getArticleDetailsByUrl(url):
 
 #scrapRSSFeed('http://rss.sina.com.cn/roll/finance/hot_roll.xml')
 
-url = 'http://www.bbc.com/news/business-36973936'
+url = 'http://finance.sina.com.cn/money/forex/20160805/150325039344.shtml'
 getArticleDetailsByUrl(url)
+# print("dd")
