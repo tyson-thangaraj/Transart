@@ -57,6 +57,17 @@ public class Article extends BaseModel implements Parcelable {
     @Column
     private String content;
 
+    public int getFeedback() {
+        return feedback;
+    }
+
+    public void setFeedback(int feedback) {
+        this.feedback = feedback;
+    }
+
+    @Column
+    private int feedback;
+
     public String getImage() {
         return image;
     }
@@ -169,6 +180,7 @@ public class Article extends BaseModel implements Parcelable {
         out.writeString(isFav);
         out.writeString(keywords);
         out.writeString(datetime);
+        out.writeInt(feedback);
     }
 
     // this is used to regenerate your object. All Parcelables must have a CREATOR that implements these two methods
@@ -195,5 +207,6 @@ public class Article extends BaseModel implements Parcelable {
         isFav = in.readString();
         keywords = in.readString();
         datetime = in.readString();
+        feedback = in.readInt();
     }
 }

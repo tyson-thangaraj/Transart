@@ -44,10 +44,11 @@ public class NewsActivity extends Activity {
         setContentView(R.layout.activity_news);
 
         final Article art = getIntent().getParcelableExtra("article");
-        Article temp = SQLite.select(Article_Table.isFav).from(Article.class).where(Article_Table.articleid.is(art.getArticleid())).querySingle();
+        Article temp = SQLite.select(Article_Table.isFav, Article_Table.feedback).from(Article.class).where(Article_Table.articleid.is(art.getArticleid())).querySingle();
         original = String.valueOf(art.getArticleid());
 
         art.setIsFav(temp.getIsFav());
+        art.setFeedback(temp.getFeedback());
         ((TextView) findViewById(R.id.textView8)).setText(art.getHeadline());
 
         String keyword = art.getKeywords();
@@ -99,6 +100,9 @@ public class NewsActivity extends Activity {
                 for (int i = size - 1; i > -1; i--) {
                     Article temp = SQLite.select().from(Article.class).where(Article_Table.articleid.is(matches.get(i).getMatchid())).querySingle();
 
+                    if (temp == null) {
+                        continue;
+                    }
                     if (!"BBC".equals(temp.getSource())) {
                         as.add(0, temp);
                     } else {
@@ -107,14 +111,14 @@ public class NewsActivity extends Activity {
                 }
 
 
-                findViewById(R.id.relatedstory).setVisibility(size==0?View.GONE:View.VISIBLE);
-                findViewById(R.id.no_relevant).setVisibility(size==0?View.VISIBLE:View.GONE);
+                findViewById(R.id.relatedstory).setVisibility(as.size()==0?View.GONE:View.VISIBLE);
+                findViewById(R.id.no_relevant).setVisibility(as.size()==0?View.VISIBLE:View.GONE);
                 findViewById(R.id.r1).setVisibility(View.GONE);
                 findViewById(R.id.r2).setVisibility(View.GONE);
                 findViewById(R.id.r3).setVisibility(View.GONE);
                 findViewById(R.id.r4).setVisibility(View.GONE);
                 findViewById(R.id.r5).setVisibility(View.GONE);
-                for (int i = 0; i < size; i++) {
+                for (int i = 0; i < as.size(); i++) {
                     //Article temp = SQLite.select().from(Article.class).where(Article_Table.articleid.is(matches.get(i).getMatchid())).querySingle();
                     Article temp = as.get(i);
                     if (temp == null) {
@@ -221,17 +225,47 @@ public class NewsActivity extends Activity {
             }
         } else {
             findViewById(R.id.relatedstory).setVisibility(View.GONE);
+            findViewById(R.id.no_relevant).setVisibility(View.GONE);
 
+            if (art.getFeedback() == 0) {
+                findViewById(R.id.relevant).setBackgroundResource(R.drawable.like);
+                findViewById(R.id.irrelevant).setBackgroundResource(R.drawable.dislike);
+            } else if (art.getFeedback() == -1) {
+                findViewById(R.id.relevant).setBackgroundResource(R.drawable.like);
+                findViewById(R.id.irrelevant).setBackgroundResource(R.drawable.dislike_grey);
+            } else if (art.getFeedback() == 1) {
+                findViewById(R.id.relevant).setBackgroundResource(R.drawable.like_grey);
+                findViewById(R.id.irrelevant).setBackgroundResource(R.drawable.dislike);
+            }
             findViewById(R.id.relevant).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    if (art.getFeedback() > 0) {
+                        return;
+                    }
+
+                    String fe;
+                    if (art.getFeedback() == 0) {
+                        fe = "1";
+                    } else {
+                        fe = "2";
+                    }
+
+                    SQLite.update(Article.class).set(Article_Table.feedback.eq(1))
+                            .where(Article_Table.articleid.is(art.getArticleid())).execute();
+                    //Article temp = SQLite.select(Article_Table.isFav).from(Article.class).where(Article_Table.articleid.is(art.getArticleid())).querySingle();
+                    art.setFeedback(1);
+                    findViewById(R.id.relevant).setBackgroundResource(R.drawable.like_grey);
+                    findViewById(R.id.irrelevant).setBackgroundResource(R.drawable.dislike);
+
+
                     AsyncHttpClient c = new AsyncHttpClient();
 
                     RequestParams rp = new RequestParams();
                     rp.add("format", "json");
                     rp.add("original", getIntent().getStringExtra("original"));
                     rp.add("matched", String.valueOf(art.getArticleid()));
-                    rp.add("feedback", "1");
+                    rp.add("feedback", fe);
 
                     c.get("http://137.43.93.133:8000/articlematch/feedback/", rp, new JsonHttpResponseHandler() {
                         @Override
@@ -253,13 +287,32 @@ public class NewsActivity extends Activity {
             findViewById(R.id.irrelevant).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    if (art.getFeedback() < 0) {
+                        return;
+                    }
+
+                    String fe;
+                    if (art.getFeedback() == 0) {
+                        fe = "-1";
+                    } else {
+                        fe = "-2";
+                    }
+
+                    SQLite.update(Article.class).set(Article_Table.feedback.eq(-1))
+                            .where(Article_Table.articleid.is(art.getArticleid())).execute();
+                    //Article temp = SQLite.select(Article_Table.isFav).from(Article.class).where(Article_Table.articleid.is(art.getArticleid())).querySingle();
+                    art.setFeedback(-1);
+                    findViewById(R.id.relevant).setBackgroundResource(R.drawable.like);
+                    findViewById(R.id.irrelevant).setBackgroundResource(R.drawable.dislike_grey);
+
+
                     AsyncHttpClient c = new AsyncHttpClient();
 
                     RequestParams rp = new RequestParams();
                     rp.add("format", "json");
                     rp.add("original", getIntent().getStringExtra("original"));
                     rp.add("matched", String.valueOf(art.getArticleid()));
-                    rp.add("feedback", "-1");
+                    rp.add("feedback", fe);
 
                     c.get("http://137.43.93.133:8000/articlematch/feedback/", rp, new JsonHttpResponseHandler() {
                         @Override
