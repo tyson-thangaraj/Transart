@@ -43,7 +43,7 @@ def scrapAll():
 
             # Match -- Three Days News
             th = datetime.now().replace(tzinfo=utc) - timedelta(days=3)
-            matcharticlesbydate(th)
+            # matcharticlesbydate(th)
 
 
         else:
@@ -78,6 +78,8 @@ def scrapRSSFeed(feed):
             url = url.split('=')[1]
         elif "cnn" in item['link']:
             url = item['feedburner_origlink']
+            print("feed:**************************")
+            print(url)
         else:
             url = item['link']
 
@@ -89,7 +91,9 @@ def scrapRSSFeed(feed):
 
             # if "?nytimes" in url:
             #     url = urllib.parse.quote(url, '/:')
-        url = urllib.parse.quote(url, '/:')
+        url = urllib.parse.quote(url, '/:?=')
+        print("parse ***************")
+        print(url)
 
         try:
             get_object_or_404(Article, url=url)

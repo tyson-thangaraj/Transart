@@ -36,7 +36,8 @@ def createArticleByUrl(url):
     return article
 
 def getArticleDetailsByUrl(url):
-    #print(url)
+    print("get detail *********************")
+    print(url)
     article = newspaper.Article(url)
 
     article.download()
