@@ -34,7 +34,7 @@ def matcharticlesbydate(th):
 
     #turn the corpus content into numerical feature vectors to help make classify
     #TfidfVectorizer is equal to CountVectorizer followed by TfidfTransformer
-    vectorizer = TfidfVectorizer(stop_words="english",lowercase=True,min_df = 2,tokenizer=lemma_tokenizer)
+    vectorizer = TfidfVectorizer(stop_words="english",lowercase=True,min_df = 2,ngram_range = (1,3),tokenizer=lemma_tokenizer)
 
     #Learn vocabulary and idf and Transform documents to document-term matrix.
     X = vectorizer.fit_transform(contents)

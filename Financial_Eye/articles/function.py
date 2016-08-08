@@ -38,13 +38,16 @@ def createArticleByUrl(url):
 def getArticleDetailsByUrl(url):
     #print(url)
     article = newspaper.Article(url)
+
     article.download()
+
     article.parse()
 
     title = article.title
     sub_title=article.meta_description
     # authors = article.authors
     date = article.publish_date
+
 
     news_content = article.text
     image = article.top_image
@@ -148,6 +151,10 @@ def getArticleDetailsByUrl(url):
         source = "France 24"
     elif "asiaone" in url:
         source = "AsiaOne Business"
+    elif "cnn.com" in url:
+        source = "CNN"
+    elif "xinhuanet" in url:
+        source = "Xinhua Net"
 
     return [title, sub_title, news_content, date, keywords, source, image]
 
