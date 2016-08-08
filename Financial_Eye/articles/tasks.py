@@ -18,7 +18,7 @@ from articlematch.function import matcharticlesbydate
 #read RSS feed every 60mins
 #@periodic_task(run_every=crontab(minute='59,14,29,44'), time_limit=14 * 60, soft_time_limit=14 * 50 - 5, expires=60)
 #expires ----- describes the absolute time and date of when the task should expire
-@periodic_task(run_every=timedelta(minutes=60), expires=60*50)
+@periodic_task(run_every=timedelta(minutes=1), expires=60*50)
 def scrapAll():
     lock_id = "scrapAll"
     have_lock = False
@@ -27,7 +27,7 @@ def scrapAll():
         have_lock = my_lock.acquire(blocking=False)
         if have_lock:
             print(lock_id + " lock acquired!")
-
+            #
             scrapRSSFeed('http://feeds.bbci.co.uk/news/business/rss.xml')
             scrapRSSFeed('http://www.chinadaily.com.cn/rss/world_rss.xml')
             scrapRSSFeed('http://feeds.nytimes.com/nyt/rss/Business')
@@ -38,6 +38,8 @@ def scrapAll():
             # scrapRSSFeed('http://www.spiegel.de/international/business/index.rss')   #spiegel online international no update
             scrapRSSFeed('http://www.france24.com/en/timeline/rss')
             scrapRSSFeed('http://business.asiaone.com/rss.xml')  #AsiaOne Business
+            scrapRSSFeed('http://www.xinhuanet.com/english/rss/businessrss.xml')  #China Xinhua Net
+            scrapRSSFeed('http://rss.cnn.com/rss/money_news_international.rssn.com/rss/money_news_international.rss') #CNN
 
             # Match -- Three Days News
             th = datetime.now().replace(tzinfo=utc) - timedelta(days=3)
@@ -63,44 +65,49 @@ def scrapAll():
 
 def scrapRSSFeed(feed):
     d = feedparser.parse(feed)
+    if "xinhuanet" in feed:
+        for item in d['entries']:
+            url = item['alink']
+    else:
 
-    for item in d['entries']:
-
-        if "bbc" in item['link']:
-            url = item['id']
-            # url = url.replace(".co.uk/", ".com/")
-        elif "nytimes" in item['link']:
-            url = item['guid']
-        elif "sina" in item['link']:
-            url=item['link']
-            url = url.split('=')[1]
-        else:
-            url = item['link']
-
-        if '?localLinksEnabled=false' in url:
-            url = url.replace('?localLinksEnabled=false', '')
-
-        if '?feedType=RSS&feedName=topNews' in url:
-            url = url.replace('?feedType=RSS&feedName=topNews', '')
-
-        # if "?nytimes" in url:
-        #     url = urllib.parse.quote(url, '/:')
-        url = urllib.parse.quote(url, '/:')
-
-        try:
-            get_object_or_404(Article, url=url)
-        except:
-            try:
-                print("create started.....")
-                article = createArticleByUrl(url)
-                article.save()
-
-            except Exception as err:
-                print(err)
-                print("News Existed. " + url)
-                pass
+        for item in d['entries']:
+            if "bbc" in item['link']:
+                url = item['id']
+                # url = url.replace(".co.uk/", ".com/")
+            elif "nytimes" in item['link']:
+                url = item['guid']
+            elif "sina" in item['link']:
+                url=item['link']
+                url = url.split('=')[1]
+            elif "cnn" in item['link']:
+                url = item['feedburner_origlink']
             else:
-                print("Add New Article:" + article.Headline)
+                url = item['link']
+
+            if '?localLinksEnabled=false' in url:
+                url = url.replace('?localLinksEnabled=false', '')
+
+            if '?feedType=RSS&feedName=topNews' in url:
+                url = url.replace('?feedType=RSS&feedName=topNews', '')
+
+            # if "?nytimes" in url:
+            #     url = urllib.parse.quote(url, '/:')
+            url = urllib.parse.quote(url, '/:')
+
+            try:
+                get_object_or_404(Article, url=url)
+            except:
+                try:
+                    print("create started.....")
+                    article = createArticleByUrl(url)
+                    article.save()
+
+                except Exception as err:
+                    print(err)
+                    print("Failed Add Article. " + url)
+                    pass
+                else:
+                    print("Add New Article:" + article.Headline)
 
     print(feed + " Done!")
 
