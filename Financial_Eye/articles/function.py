@@ -125,7 +125,7 @@ def getArticleDetailsByUrl(url):
         translated_content = googleTranslate(news_content_list)
 
         for item in translated_content['translations']:
-            news_content += item['translatedText'] + '\n'
+            news_content += item['translatedText'] + '\n\n'
 
         # translate title and sub_title    
         originalText = [title, sub_title]

@@ -26,7 +26,7 @@ class TopNArticlePagination(LimitOffsetPagination):
 
 
 class MatchList(generics.ListCreateAPIView):
-    queryset = Articlematch.objects.all()
+    queryset = Articlematch.objects.filter(Weight__gte=threshold)
     serializer_class = ArticlematchSerializer
 
     pagination_class = TopNArticlePagination 
