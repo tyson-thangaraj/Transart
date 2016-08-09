@@ -28,18 +28,18 @@ def scrapAll():
         if have_lock:
             print(lock_id + " lock acquired!")
             #
-            # scrapRSSFeed('http://feeds.bbci.co.uk/news/business/rss.xml')
-            # scrapRSSFeed('http://www.chinadaily.com.cn/rss/world_rss.xml')
-            # scrapRSSFeed('http://feeds.nytimes.com/nyt/rss/Business')
-            # scrapRSSFeed('http://feeds.reuters.com/reuters/businessNews')
-            # scrapRSSFeed('http://rss.sina.com.cn/roll/finance/hot_roll.xml')
-            #
-            # #scrapRSSFeed('http://www.channelnewsasia.com/starterkit/servlet/cna/rss/business.xml')
-            # # scrapRSSFeed('http://www.spiegel.de/international/business/index.rss')   #spiegel online international no update
-            # scrapRSSFeed('http://www.france24.com/en/timeline/rss')
-            # scrapRSSFeed('http://business.asiaone.com/rss.xml')  #AsiaOne Business
-            # scrapRSSFeed('http://www.xinhuanet.com/english/rss/businessrss.xml')  #China Xinhua Net
-            # scrapRSSFeed('http://rss.cnn.com/rss/money_news_international.rssn.com/rss/money_news_international.rss') #CNN
+            scrapRSSFeed('http://feeds.bbci.co.uk/news/business/rss.xml')
+            scrapRSSFeed('http://www.chinadaily.com.cn/rss/world_rss.xml')
+            scrapRSSFeed('http://feeds.nytimes.com/nyt/rss/Business')
+            scrapRSSFeed('http://feeds.reuters.com/reuters/businessNews')
+            scrapRSSFeed('http://rss.sina.com.cn/roll/finance/hot_roll.xml')
+
+            #scrapRSSFeed('http://www.channelnewsasia.com/starterkit/servlet/cna/rss/business.xml')
+            # scrapRSSFeed('http://www.spiegel.de/international/business/index.rss')   #spiegel online international no update
+            scrapRSSFeed('http://www.france24.com/en/timeline/rss')
+            scrapRSSFeed('http://business.asiaone.com/rss.xml')  #AsiaOne Business
+            scrapRSSFeed('http://www.xinhuanet.com/english/rss/businessrss.xml')  #China Xinhua Net
+            scrapRSSFeed('http://rss.cnn.com/rss/money_news_international.rssn.com/rss/money_news_international.rss') #CNN
 
             # Match -- Three Days News
             th = datetime.now().replace(tzinfo=utc) - timedelta(days=3)
@@ -78,8 +78,6 @@ def scrapRSSFeed(feed):
             url = url.split('=')[1]
         elif "cnn" in item['link']:
             url = item['feedburner_origlink']
-            print("feed:**************************")
-            print(url)
         else:
             url = item['link']
 
@@ -92,9 +90,6 @@ def scrapRSSFeed(feed):
             # if "?nytimes" in url:
             #     url = urllib.parse.quote(url, '/:')
         url = urllib.parse.quote(url, '/:?=')
-        print("parse ***************")
-        print(url)
-
         try:
             get_object_or_404(Article, url=url)
         except:

@@ -62,11 +62,12 @@ def getArticleDetailsByUrl(url):
         soup = BeautifulSoup(page,"html.parser")
         soup.prettify()
         source = "ChinaDaily"
-        tag = soup.find("span", attrs={"class": "greyTxt6 block mb15"}).get_text()
-        date = str.split(tag, ':  ')[1]
-
-        date = datetime.strptime(date, "%Y-%m-%d %H:%M")
-        date = date.replace(tzinfo=utc) - timedelta(hours=8)
+        tag = soup.find("span", attrs={"class": "greyTxt6 block mb15"})
+        if tag != None:
+            date_tag = tag.get_text()
+            date = str.split(date_tag, ':  ')[1]
+            date = datetime.strptime(date, "%Y-%m-%d %H:%M")
+            date = date.replace(tzinfo=utc) - timedelta(hours=8)
     elif "bbc" in url:
         page = urllib.request.urlopen(url).read()
         soup = BeautifulSoup(page,"html.parser")
