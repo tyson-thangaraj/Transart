@@ -240,11 +240,12 @@ public class NewsActivity extends Activity {
             findViewById(R.id.relevant).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    String fe = "1";
+
                     if (art.getFeedback() > 0) {
                         return;
                     }
 
-                    String fe;
                     if (art.getFeedback() == 0) {
                         fe = "1";
                     } else {
@@ -287,11 +288,12 @@ public class NewsActivity extends Activity {
             findViewById(R.id.irrelevant).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    String fe = "-1";
+
                     if (art.getFeedback() < 0) {
                         return;
                     }
 
-                    String fe;
                     if (art.getFeedback() == 0) {
                         fe = "-1";
                     } else {
