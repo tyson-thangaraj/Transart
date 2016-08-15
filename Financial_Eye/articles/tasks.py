@@ -28,18 +28,18 @@ def scrapAll():
         if have_lock:
             print(lock_id + " lock acquired!")
             #
-            scrapRSSFeed('http://feeds.bbci.co.uk/news/business/rss.xml')
-            scrapRSSFeed('http://www.chinadaily.com.cn/rss/world_rss.xml')
-            scrapRSSFeed('http://feeds.nytimes.com/nyt/rss/Business')
-            scrapRSSFeed('http://feeds.reuters.com/reuters/businessNews')
-            scrapRSSFeed('http://rss.sina.com.cn/roll/finance/hot_roll.xml')
-
-            #scrapRSSFeed('http://www.channelnewsasia.com/starterkit/servlet/cna/rss/business.xml')
-            # scrapRSSFeed('http://www.spiegel.de/international/business/index.rss')   #spiegel online international no update
-            scrapRSSFeed('http://www.france24.com/en/timeline/rss')
-            scrapRSSFeed('http://business.asiaone.com/rss.xml')  #AsiaOne Business
-            scrapRSSFeed('http://www.xinhuanet.com/english/rss/businessrss.xml')  #China Xinhua Net
-            scrapRSSFeed('http://rss.cnn.com/rss/money_news_international.rssn.com/rss/money_news_international.rss') #CNN
+            # scrapRSSFeed('http://feeds.bbci.co.uk/news/business/rss.xml')
+            # scrapRSSFeed('http://www.chinadaily.com.cn/rss/world_rss.xml')
+            # scrapRSSFeed('http://feeds.nytimes.com/nyt/rss/Business')
+            # scrapRSSFeed('http://feeds.reuters.com/reuters/businessNews')
+            # scrapRSSFeed('http://rss.sina.com.cn/roll/finance/hot_roll.xml')
+            #
+            # #scrapRSSFeed('http://www.channelnewsasia.com/starterkit/servlet/cna/rss/business.xml')
+            # # scrapRSSFeed('http://www.spiegel.de/international/business/index.rss')   #spiegel online international no update
+            # scrapRSSFeed('http://www.france24.com/en/timeline/rss')
+            # scrapRSSFeed('http://business.asiaone.com/rss.xml')  #AsiaOne Business
+            # scrapRSSFeed('http://www.xinhuanet.com/english/rss/businessrss.xml')  #China Xinhua Net
+            # scrapRSSFeed('http://rss.cnn.com/rss/money_news_international.rssn.com/rss/money_news_international.rss') #CNN
 
             # Match -- Three Days News
             th = datetime.now().replace(tzinfo=utc) - timedelta(days=3)
@@ -65,49 +65,45 @@ def scrapAll():
 
 def scrapRSSFeed(feed):
     d = feedparser.parse(feed)
-    if "xinhuanet" in feed:
-        for item in d['entries']:
+
+    for item in d['entries']:
+        if "xinhuanet" in feed:
             url = item['alink']
-    else:
+        elif "bbc" in item['link']:
+            url = item['id']
+        elif "nytimes" in item['link']:
+            url = item['guid']
+        elif "sina" in item['link']:
+            url=item['link']
+            url = url.split('=')[1]
+        elif "cnn" in item['link']:
+            url = item['feedburner_origlink']
+        else:
+            url = item['link']
 
-        for item in d['entries']:
-            if "bbc" in item['link']:
-                url = item['id']
-                # url = url.replace(".co.uk/", ".com/")
-            elif "nytimes" in item['link']:
-                url = item['guid']
-            elif "sina" in item['link']:
-                url=item['link']
-                url = url.split('=')[1]
-            elif "cnn" in item['link']:
-                url = item['feedburner_origlink']
-            else:
-                url = item['link']
+        if '?localLinksEnabled=false' in url:
+            url = url.replace('?localLinksEnabled=false', '')
 
-            if '?localLinksEnabled=false' in url:
-                url = url.replace('?localLinksEnabled=false', '')
-
-            if '?feedType=RSS&feedName=topNews' in url:
-                url = url.replace('?feedType=RSS&feedName=topNews', '')
+        if '?feedType=RSS&feedName=topNews' in url:
+            url = url.replace('?feedType=RSS&feedName=topNews', '')
 
             # if "?nytimes" in url:
             #     url = urllib.parse.quote(url, '/:')
-            url = urllib.parse.quote(url, '/:')
-
+        url = urllib.parse.quote(url, '/:?=')
+        try:
+            get_object_or_404(Article, url=url)
+        except:
             try:
-                get_object_or_404(Article, url=url)
-            except:
-                try:
-                    print("create started.....")
-                    article = createArticleByUrl(url)
-                    article.save()
+                print("create started.....")
+                article = createArticleByUrl(url)
+                article.save()
 
-                except Exception as err:
-                    print(err)
-                    print("Failed Add Article. " + url)
-                    pass
-                else:
-                    print("Add New Article:" + article.Headline)
+            except Exception as err:
+                print(err)
+                print("Failed Add Article. " + url)
+                pass
+            else:
+                print("Add New Article:" + article.Headline)
 
     print(feed + " Done!")
 
