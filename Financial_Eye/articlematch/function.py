@@ -1,7 +1,6 @@
 __author__ = 'fanfan'
 #
 
-
 import json
 import nltk
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -19,12 +18,10 @@ def matcharticlesbydate(th):
 
     news = serializers.serialize("json", Article.objects.filter(DateTime__gte = th))
     news = json.loads(news)
-    # bbc_news = serializers.serialize("json", Article.objects.filter(DateTime__gte = th, Source = "BBC"))
-    # print(news)
 
     contents=[]
     ID=[]
-    j=0 #store tha value of the number of documents
+    j=0 #store the number of documents
 
     #Extract raw descriptions and the corresponding two class labels for those descriptions
     for item in news:
@@ -38,7 +35,7 @@ def matcharticlesbydate(th):
 
     #Learn vocabulary and idf and Transform documents to document-term matrix.
     X = vectorizer.fit_transform(contents)
-    print(X.shape)
+    #print(X.shape)
 
     #sort the tf-idf and find most important words for each news
     tokens_arrays=X.toarray()
@@ -46,6 +43,7 @@ def matcharticlesbydate(th):
     # extract the keywords
     extractKeywords(tokens_arrays, vectorizer, ID)
 
+    #calculate the similarity based on contents and tokens_arrays and save similarity into the database
     articles_similarity(contents,tokens_arrays,ID)
 
 
@@ -82,7 +80,6 @@ def extractKeywords(newsarray, vectorizer, ids):
         in_feature = set(top_features)
         total_features = total_features | in_feature
 
-
 # save the matched news to database
 def articles_similarity(contents,newsarray,ids):
     pk1 = 0
@@ -114,12 +111,9 @@ def articles_similarity(contents,newsarray,ids):
                         d2=get_all_word_counts(result,entities2)
                         names_similarity = cosine_similarity(list(d1.values()),list(d2.values()))
                         
-                        # if names_similarity == 0:
-                        #     simi = 0.8 * contents_similarity
-                        # else:
-                        #     simi = (0.5 * names_similarity + contents_similarity) * 0.8
+                        #mix the similarity between contents_similarity and names_simsilarity
                         simi = contents_similarity + 0.5 * names_similarity
-                        # save
+                        # save the similarity to the database
                         articlematch = Articlematch(News = article, Match_News=ids[pk2], Weight = simi, Content_similarity = contents_similarity, Name_similarity = names_similarity)
                         articlematch.save()
                     except Exception as err:
@@ -152,16 +146,6 @@ def extract_entities(text):
             continue
 
     return continuous_chunk
-
-#find name entity from certain text
-# def find_name(st, text):
-#     name_set = []
-#     for sent in nltk.sent_tokenize(text):
-#         tokens = nltk.tokenize.word_tokenize(sent)
-#         tags = st.tag(tokens)
-#         for tag in tags:
-#             if tag[1]=='PERSON': name_set.append(tag[0])
-#         return name_set
 
 #count each name frequence
 def get_all_word_counts(wordunion,entities):
