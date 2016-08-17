@@ -16,7 +16,6 @@ from django.utils.timezone import utc
 from datetime import timedelta, datetime
 
 def createArticleObject(title, subtitle, body, date, keywords, url, type, source, image):
-    #print([title, subtitle, body, date, keywords, url, type, source, image])
 
     try:
         article = Article(Headline=title, SubHeadline=subtitle,
@@ -36,19 +35,14 @@ def createArticleByUrl(url):
     return article
 
 def getArticleDetailsByUrl(url):
-    print("get detail *********************")
-    print(url)
     article = newspaper.Article(url)
-
     article.download()
-
     article.parse()
 
     title = article.title
     sub_title=article.meta_description
     # authors = article.authors
     date = article.publish_date
-
 
     news_content = article.text
     image = article.top_image
@@ -92,26 +86,6 @@ def getArticleDetailsByUrl(url):
         date = datetime.strptime(tag, "%Y%m%d%H%M%S")
     elif "reuters" in url:
         source="Reuters"
-    # elif "people" in url:
-    #     source = "People"
-    #     title = str.split(title, '--')[0]
-    #     page = urllib.request.urlopen(url).read()
-    #     soup = BeautifulSoup(page,"html.parser")
-    #     soup.prettify()
-    #     news_content=''
-    #     for tag in soup.find("div", attrs={"class": "box_con"}).find_all("p"):
-    #         if "script" not in tag.get_text():
-    #             news_content += tag.get_text() + '\n'
-        
-        # # translation
-        # originalText = [title, sub_title, news_content]
-        # translatedText = googleTranslate(originalText)
-
-        # title = translatedText['translations'][0]['translatedText']
-        # sub_title= translatedText['translations'][1]['translatedText']
-        # news_content = translatedText['translations'][2]['translatedText']
-        
-        # keywords = extractKeywords(title)
     elif "sina" in url:
         page = urllib.request.urlopen(url).read()
         soup = BeautifulSoup(page,"html.parser",from_encoding="GB18030")
@@ -164,13 +138,10 @@ def extractKeywords(text):
     stop_words = load_stopwords()
     keywords = []
     tokens = nltk.word_tokenize(text)
-    #print(tokens)
 
     for token in tokens:
         if token not in stop_words:
             keywords.append(token.lower())
-
-    #print(keywords)
     return ", ".join(keywords)
 
 def load_stopwords():
