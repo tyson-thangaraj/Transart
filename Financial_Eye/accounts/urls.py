@@ -1,4 +1,4 @@
-__author__ = 'fanfan'
+__author__ = 'fanfan, Jiandong Wang'
 
 from django.conf.urls import url
 
@@ -9,7 +9,6 @@ urlpatterns = [
 
     url(r'^userlist/$', views.UserList.as_view(), name='user_list'),
     url(r'^(?P<pk>[0-9]+)/$', views.UserDetail.as_view(), name='user detail'),
-    #url(r'^adduser/$', views.CreateUser.as_view(), name='add user'),
     url(r'^register/$', views.user_register, name='user register'),
     url(r'^login/$', views.user_login, name='user log in'),
 

@@ -1,4 +1,4 @@
-from django.shortcuts import render
+__author__ = 'Jiandong Wang'
 
 # Create your views here.
 
@@ -14,6 +14,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
 
+# customize filter
 class MatchFilter(filters.FilterSet):
     selectedArticleID = django_filters.ModelChoiceFilter(name='News', queryset=Article.objects.filter(Source='BBC'))
     class Meta:
@@ -26,10 +27,12 @@ class TopNArticlePagination(LimitOffsetPagination):
 
 
 class MatchList(generics.ListCreateAPIView):
+    # filter the records by threshold
     threshold = 0.35
     queryset = Articlematch.objects.filter(Weight__gte=threshold)
     serializer_class = ArticlematchSerializer
 
+    #set pagination, filter, ordering
     pagination_class = TopNArticlePagination 
     filter_backends = (filters.OrderingFilter,filters.DjangoFilterBackend,)
     filter_class = MatchFilter
@@ -56,8 +59,7 @@ def user_feedback(request, format=None):
     try:
         match = Articlematch.objects.get(News=article, Match_News=matched_article)
         
-        # pre_number = match.User_feedback
-        # pre_weight = 
+        # if the number of user feedback is less than 20, then add 0.01 to total weight; otherwise, do nothing.
         match.User_feedback += int(feedback)
         cur_number = match.User_feedback
 
@@ -65,10 +67,6 @@ def user_feedback(request, format=None):
             match.Weight += 0.01*int(feedback)
 
         match.save()
-
-            
-        # match.Weight += 0.01*match.User_feedback 
-        # match.save()
         return Response(status=status.HTTP_200_OK)  
     except Articlematch.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)

@@ -1,5 +1,4 @@
-__author__ = 'fanfan'
-#
+__author__ = 'fanfan, Jiandong Wang'
 
 
 import json
@@ -19,8 +18,6 @@ def matcharticlesbydate(th):
 
     news = serializers.serialize("json", Article.objects.filter(DateTime__gte = th))
     news = json.loads(news)
-    # bbc_news = serializers.serialize("json", Article.objects.filter(DateTime__gte = th, Source = "BBC"))
-    # print(news)
 
     contents=[]
     ID=[]
@@ -114,10 +111,8 @@ def articles_similarity(contents,newsarray,ids):
                         d2=get_all_word_counts(result,entities2)
                         names_similarity = cosine_similarity(list(d1.values()),list(d2.values()))
                         
-                        # if names_similarity == 0:
-                        #     simi = 0.8 * contents_similarity
-                        # else:
-                        #     simi = (0.5 * names_similarity + contents_similarity) * 0.8
+                        # calculate the sum of content similarity and name similarity
+
                         simi = contents_similarity + 0.5 * names_similarity
                         # save
                         articlematch = Articlematch(News = article, Match_News=ids[pk2], Weight = simi, Content_similarity = contents_similarity, Name_similarity = names_similarity)
@@ -127,13 +122,12 @@ def articles_similarity(contents,newsarray,ids):
                         print("Failed adding matched article ")
                         pass
                     else:
-                        #print("Add New matched Article:" + articlematch.News.id + articlematch.Match_News + articlematch.Weight)
                         print("Add New matched Article  +++++++++++++++++++++++++++++++++++++++++++++++")
             pk2 = pk2+1
         pk1 = pk1+1
 
 
-# Name entities
+# Extract name entities with nltk chunk and tree
 def extract_entities(text):
     chunked = ne_chunk(pos_tag(word_tokenize(text)))
     prev = None
@@ -141,6 +135,7 @@ def extract_entities(text):
     current_chunk = []
 
     for i in chunked:
+        # if the type of the note is tree, the note contains name entity.
         if type(i) == Tree:
             current_chunk.append(" ".join([token for token, pos in i.leaves()]))
         elif current_chunk:
@@ -153,15 +148,6 @@ def extract_entities(text):
 
     return continuous_chunk
 
-#find name entity from certain text
-# def find_name(st, text):
-#     name_set = []
-#     for sent in nltk.sent_tokenize(text):
-#         tokens = nltk.tokenize.word_tokenize(sent)
-#         tags = st.tag(tokens)
-#         for tag in tags:
-#             if tag[1]=='PERSON': name_set.append(tag[0])
-#         return name_set
 
 #count each name frequence
 def get_all_word_counts(wordunion,entities):
