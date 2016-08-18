@@ -24,7 +24,8 @@ This app is used to calculate the similarity of news.
 #Android -- Front-End
 
 # How to use
-Clon the whole project using the following commands:
+Clone the whole project using the following commands:
+    
     $ git clone git@github.com:ucd-nlmsc-teamproject/Transart.git
 
 ### 1. fetch news with reis & celery
