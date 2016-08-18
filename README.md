@@ -5,6 +5,12 @@ There are two parts of this project: back-end and front-end
 
 #Financial_Eye -- Back-End
 
+What we used:
+* [Python](https://www.python.org)
+* [Django](https://www.djangoproject.com)
+* [Django Rest Framework](http://www.django-rest-framework.org)
+
+
 #Android -- Front-End
 
 # code update
