@@ -34,7 +34,7 @@ git clone git@github.com:ucd-nlmsc-teamproject/Transart.git
     $ python manage.py runserver
 
 ### 3. Android
-    Generate an apk file and install.
+    Generate an apk file and install it.
 
 # code upload
 git add filename
