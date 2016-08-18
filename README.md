@@ -14,9 +14,9 @@ What we used:
 ### ＊ accounts
 User login / register
 
-＊ ### articles
+### ＊ articles
 
-＊ ### articlematch
+### ＊ articlematch
 
 #Android -- Front-End
 
