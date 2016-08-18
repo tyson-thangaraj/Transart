@@ -1,22 +1,13 @@
-from django.shortcuts import render
+__author__ = 'Jiandong Wang'
 
-
-from django.http import HttpResponse
-
-#from django.shortcuts import render, get_object_or_404
-from django.utils.timezone import utc
-# from datetime import timedelta, datetime
-from rest_framework.decorators import api_view, authentication_classes, permission_classes
+from rest_framework.decorators import api_view
 from rest_framework import status
 from rest_framework.response import Response
-from rest_framework.renderers import JSONRenderer
-from rest_framework.parsers import JSONParser
 
 from accounts.models import Users
 from accounts.serializers import UserSerializer
 from rest_framework import generics
-from rest_framework import filters
-import django_filters
+
 
 # Create your views here.
 
@@ -31,7 +22,7 @@ class UserDetail(generics.RetrieveUpdateDestroyAPIView):
 @api_view(['GET', 'POST'])
 def user_register(request, format=None):
     """
-    register a account with username and password parameters
+    register an account with username and password parameters
     """
 
     username = request.query_params.get('username', None)
@@ -51,11 +42,12 @@ def user_register(request, format=None):
 @api_view(['GET', 'POST'])
 def user_login(request):
     """
-    log in a account with username and password parameters
+    log in an account with username and password parameters
     """
     username = request.query_params.get('username', None)
     password = request.query_params.get('password', None)
 
+    # define customed response messages
     d1 = {"Info":["No such user"]}
     d2 = {"Info":["Wrong password"]}
     d3 = {"Info":["Sucessfully login"]}
@@ -72,46 +64,3 @@ def user_login(request):
         return Response(d1)
 
     
-# class UserList(generics.ListCreateAPIView):
-#     queryset = Users.objects.all()
-#     serializer_class = UserSerializer
-
-#     def get_queryset(self):
-#         """
-#         Optionally restricts the returned purchases to a given user,
-#         by filtering against a `username` query parameter in the URL.
-#         """
-#         queryset = Users.objects.all()
-#         username = self.request.query_params.get('username', None)
-#         password = self.request.query_params.get('password', None)
-#         flag = self.request.query_params.get('flag', None)
-#         # print(flag)
-#         # print(type(flag))
-#         if flag == "1":
-#             newuser = Users(Username=username, Password=password)
-#             newuser.save()
-#             return queryset
-#         elif flag == "2":
-#             if username and password is not None:
-#                 queryset = queryset.filter(Username=username, Password=password)
-#             return queryset
-
-
-# from django.contrib.auth.models import User
-# from rest_framework import authentication
-# from rest_framework import exceptions
-
-# class ExampleAuthentication(authentication.BaseAuthentication):
-#     def authenticate(self, request):
-#         username = request.META.get('username')
-#         password = request.META.get('password')
-#         if not username:
-#             return None
-#         try:
-#             user = Users.objects.get(Username=username)
-#             if password != user.Password:
-#                 raise exceptions.AuthenticationFailed('wrong password')
-#         except User.DoesNotExist:
-#             raise exceptions.AuthenticationFailed('No such user')
-#         return (user, None)
-

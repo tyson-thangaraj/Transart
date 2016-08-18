@@ -3,7 +3,6 @@ __author__ = 'fanfan'
 from django.conf.urls import url
 
 from . import views
-from rest_framework.urlpatterns import format_suffix_patterns
 
 urlpatterns = [
     url(r'^$', views.article_index, name='article_index'),
@@ -13,9 +12,6 @@ urlpatterns = [
     
     url(r'^article_api_list/$', views.ArticleList.as_view(), name='articles_api_list'),
     url(r'^articles/(?P<pk>[0-9]+)/$', views.ArticleDetail.as_view()),
-
-    # url(r'^article_api_list/$', views.article_api_list, name='articles_api_list'),
-    # url(r'^articles/(?P<pk>[0-9]+)/$', views.article_detail),
 ]
 
 

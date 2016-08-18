@@ -1,5 +1,4 @@
-__author__ = 'fanfan'
-#
+__author__ = 'fanfan, Jiandong Wang'
 
 
 import json
@@ -17,13 +16,12 @@ from nltk.tree import Tree
 
 def matcharticlesbydate(th):
 
+    #get the news according the parameter 'th' and save them as json format
     news = serializers.serialize("json", Article.objects.filter(DateTime__gte = th))
     news = json.loads(news)
-    # bbc_news = serializers.serialize("json", Article.objects.filter(DateTime__gte = th, Source = "BBC"))
-    # print(news)
 
-    contents=[]
-    ID=[]
+    contents=[]  #to store the news content
+    ID=[]        #to store the id in the table
     j=0 #store tha value of the number of documents
 
     #Extract raw descriptions and the corresponding two class labels for those descriptions
@@ -45,10 +43,10 @@ def matcharticlesbydate(th):
 
     # extract the keywords
     extractKeywords(tokens_arrays, vectorizer, ID)
-
+    #calculate similarity
     articles_similarity(contents,tokens_arrays,ID)
 
-
+#lemmatization
 def lemma_tokenizer(text):
     # use the standard scikit-learn tokenizer first to converting strings of descriptions to a list of tokens
     standard_tokenizer = TfidfVectorizer().build_tokenizer()
@@ -85,41 +83,45 @@ def extractKeywords(newsarray, vectorizer, ids):
 
 # save the matched news to database
 def articles_similarity(contents,newsarray,ids):
-    pk1 = 0
+    pk1 = 0     #to get the correct id: ids[pk1] --- contents[pk1]
     for item1 in newsarray:
-        pk2 = 0
+        pk2 = 0   #to get the correct id: ids[pk2] --- contents[pk2]
+        #get the article object based on pk1, this is the foreign key
         article = Article.objects.get(pk=ids[pk1])
         # fetch the name entity
         name1 = extract_entities(contents[pk1])
         entities1=split_name(name1)
 
+        #similiarity just between BBC news and all of the news.
         if(article.Source != "BBC"):
             pk1 = pk1+1
             continue
         for item2 in newsarray:
-            if pk1 != pk2:
+            if pk1 != pk2:     #the different news
                 try:
+                    #to check whether these two news already has their similarity
                     get_object_or_404(Articlematch, News=article, Match_News = ids[pk2])
                 except:
                     try:
                         #get the cosine score of this two articles based on the tf-idf
                         contents_similarity = cosine_similarity(item1, item2)
                         # print(contents_similarity)
+                        ## fetch the name entity
                         name2 = extract_entities(contents[pk2])
                         entities2=split_name(name2)
 
+                        #name entities set
                         result= set(entities1+entities2)
 
+                        #get the count of each name entity
                         d1=get_all_word_counts(result,entities1)
                         d2=get_all_word_counts(result,entities2)
+                        #similarity of name entities.
                         names_similarity = cosine_similarity(list(d1.values()),list(d2.values()))
                         
-                        # if names_similarity == 0:
-                        #     simi = 0.8 * contents_similarity
-                        # else:
-                        #     simi = (0.5 * names_similarity + contents_similarity) * 0.8
+                        # calculate the sum of content similarity and name similarity
                         simi = contents_similarity + 0.5 * names_similarity
-                        # save
+                        # save to database
                         articlematch = Articlematch(News = article, Match_News=ids[pk2], Weight = simi, Content_similarity = contents_similarity, Name_similarity = names_similarity)
                         articlematch.save()
                     except Exception as err:
@@ -127,13 +129,12 @@ def articles_similarity(contents,newsarray,ids):
                         print("Failed adding matched article ")
                         pass
                     else:
-                        #print("Add New matched Article:" + articlematch.News.id + articlematch.Match_News + articlematch.Weight)
                         print("Add New matched Article  +++++++++++++++++++++++++++++++++++++++++++++++")
             pk2 = pk2+1
         pk1 = pk1+1
 
 
-# Name entities
+# Extract name entities with nltk chunk and tree
 def extract_entities(text):
     chunked = ne_chunk(pos_tag(word_tokenize(text)))
     prev = None
@@ -141,6 +142,7 @@ def extract_entities(text):
     current_chunk = []
 
     for i in chunked:
+        # if the type of the note is tree, the note contains name entity.
         if type(i) == Tree:
             current_chunk.append(" ".join([token for token, pos in i.leaves()]))
         elif current_chunk:
@@ -153,15 +155,6 @@ def extract_entities(text):
 
     return continuous_chunk
 
-#find name entity from certain text
-# def find_name(st, text):
-#     name_set = []
-#     for sent in nltk.sent_tokenize(text):
-#         tokens = nltk.tokenize.word_tokenize(sent)
-#         tags = st.tag(tokens)
-#         for tag in tags:
-#             if tag[1]=='PERSON': name_set.append(tag[0])
-#         return name_set
 
 #count each name frequence
 def get_all_word_counts(wordunion,entities):
@@ -171,6 +164,7 @@ def get_all_word_counts(wordunion,entities):
             word_counts[word]+=1          #Increment the count accordingly
     return word_counts
 
+#split name entities
 def split_name(namelist):
     new_name=[]
     for element in namelist:

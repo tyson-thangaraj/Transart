@@ -11,49 +11,48 @@
         android:layout_height="match_parent"
     >
 
-    <!-- As the main content view, the view below consumes the entire
-         space available using match_parent in both dimensions. -->
-    <FrameLayout
-        android:id="@+id/container"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        <!-- As the main content view, the view below consumes the entire
+             space available using match_parent in both dimensions. -->
+        <FrameLayout
+            android:id="@+id/container"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
 
-    <!-- The drawer is given a fixed width in dp and extends the full height of
-         the container. -->
-    <fragment
-        android:id="@+id/navigation_drawer"
-        android:name="news.com.financial_news_android.NavigationDrawerFragment"
-        android:layout_width="@dimen/navigation_drawer_width"
-        android:layout_height="match_parent"
-        android:layout_gravity="start"
-        tools:layout="@layout/drawer_main"
-        />
+        <!-- The drawer is given a fixed width in dp and extends the full height of
+             the container. -->
+        <fragment
+            android:id="@+id/navigation_drawer"
+            android:name="news.com.financial_news_android.NavigationDrawerFragment"
+            android:layout_width="@dimen/navigation_drawer_width"
+            android:layout_height="match_parent"
+            android:layout_gravity="start"
+            tools:layout="@layout/drawer_main"
+            />
 
     </android.support.v4.widget.DrawerLayout>
+
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#ff0000"
+        android:background="#d32f2f"
         android:id="@+id/loading">
-
-
         <ImageView
             android:layout_width="125dp"
             android:layout_height="125dp"
             android:id="@+id/imageView11"
+            android:layout_marginTop="128dp"
+            android:src="@mipmap/icon"
             android:layout_alignParentTop="true"
-            android:layout_centerHorizontal="true"
-            android:layout_marginTop="105dp"
-            android:src="@mipmap/icon" />
+            android:layout_centerHorizontal="true" />
 
-        <EditText
+        <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/editText2"
-            android:layout_below="@+id/imageView11"
-            android:layout_centerHorizontal="true"
-            android:layout_marginTop="40dp"
             android:text="Financial Eye"
-            android:textSize="40sp" />
+            android:textSize="40sp"
+            android:layout_centerVertical="true"
+            android:layout_centerHorizontal="true"
+            android:allowUndo="false" />
     </RelativeLayout>
 </FrameLayout>
