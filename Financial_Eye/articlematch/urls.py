@@ -1,4 +1,4 @@
-__author__ = 'fanfan'
+__author__ = 'fanfan, Jiandong Wang'
 
 from django.conf.urls import url
 

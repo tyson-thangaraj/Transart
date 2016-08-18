@@ -17,13 +17,9 @@ from django.conf.urls import url, include
 from django.contrib import admin
 import homepage.views
 
-# urlpatterns = [
-#     url(r'^admin/', admin.site.urls),
-# ]
 
 urlpatterns = [
     url(r'^$', homepage.views.home_index, name='home_index'),
-    #url(r'^debug', 'homepage.views.home_debug', name='home_debug'),
     url(r'^admin/', include(admin.site.urls)),
     url(r'^articles/', include('articles.urls')),
     url(r'^accounts/', include('accounts.urls')),

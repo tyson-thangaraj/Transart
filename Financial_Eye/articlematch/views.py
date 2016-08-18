@@ -1,7 +1,5 @@
 __author__ = 'Jiandong Wang'
 
-# Create your views here.
-
 from articlematch.models import Articlematch
 from articles.models import Article
 from articlematch.serializers import ArticlematchSerializer

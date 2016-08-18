@@ -1,22 +1,19 @@
-__author__ = 'fanfan'
+__author__ = 'fanfan, Jiandong Wang'
 
 import urllib
 from datetime import datetime
 from bs4 import BeautifulSoup
 import nltk
 import pytz
-
 from articles.models import Article
 import newspaper
 from http.cookiejar import CookieJar
+from django.utils.timezone import utc
+from datetime import timedelta, datetime
 #------ google translate --------
 from googleapiclient.discovery import build
 
-from django.utils.timezone import utc
-from datetime import timedelta, datetime
-
 def createArticleObject(title, subtitle, body, date, keywords, url, type, source, image):
-
     try:
         article = Article(Headline=title, SubHeadline=subtitle,
                       Content=body, Url=url,
@@ -159,7 +156,9 @@ def extractKeywords(text):
     return ", ".join(keywords)
 
 # google translate API 
+# NOTE: the IP address of the server must get the permission to run this translation method
 def googleTranslate(text):
+    # register the translation key
     myKey = 'AIzaSyDB5M7vM-gnhG4jKWp6E4PT5Y3GhLAprlE'
     service = build('translate', 'v2',
             developerKey=myKey)
@@ -168,7 +167,6 @@ def googleTranslate(text):
       source='zh',
       target='en',
       q = text
-      #q=['He said Brexit would "freeze the possibilities of investment in Great Britain or in Europe as a whole". He appealed to the UK prime minister and other EU leaders to ensure an orderly process for the British exit.', 'car']
     ).execute()
     
     return translatedText
