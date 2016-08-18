@@ -16,11 +16,12 @@ from nltk.tree import Tree
 
 def matcharticlesbydate(th):
 
+    #get the news according the parameter 'th' and save them as json format
     news = serializers.serialize("json", Article.objects.filter(DateTime__gte = th))
     news = json.loads(news)
 
-    contents=[]
-    ID=[]
+    contents=[]  #to store the news content
+    ID=[]        #to store the id in the table
     j=0 #store tha value of the number of documents
 
     #Extract raw descriptions and the corresponding two class labels for those descriptions
@@ -42,10 +43,10 @@ def matcharticlesbydate(th):
 
     # extract the keywords
     extractKeywords(tokens_arrays, vectorizer, ID)
-
+    #calculate similarity
     articles_similarity(contents,tokens_arrays,ID)
 
-
+#lemmatization
 def lemma_tokenizer(text):
     # use the standard scikit-learn tokenizer first to converting strings of descriptions to a list of tokens
     standard_tokenizer = TfidfVectorizer().build_tokenizer()
@@ -82,39 +83,45 @@ def extractKeywords(newsarray, vectorizer, ids):
 
 # save the matched news to database
 def articles_similarity(contents,newsarray,ids):
-    pk1 = 0
+    pk1 = 0     #to get the correct id: ids[pk1] --- contents[pk1]
     for item1 in newsarray:
-        pk2 = 0
+        pk2 = 0   #to get the correct id: ids[pk2] --- contents[pk2]
+        #get the article object based on pk1, this is the foreign key
         article = Article.objects.get(pk=ids[pk1])
         # fetch the name entity
         name1 = extract_entities(contents[pk1])
         entities1=split_name(name1)
 
+        #similiarity just between BBC news and all of the news.
         if(article.Source != "BBC"):
             pk1 = pk1+1
             continue
         for item2 in newsarray:
-            if pk1 != pk2:
+            if pk1 != pk2:     #the different news
                 try:
+                    #to check whether these two news already has their similarity
                     get_object_or_404(Articlematch, News=article, Match_News = ids[pk2])
                 except:
                     try:
                         #get the cosine score of this two articles based on the tf-idf
                         contents_similarity = cosine_similarity(item1, item2)
                         # print(contents_similarity)
+                        ## fetch the name entity
                         name2 = extract_entities(contents[pk2])
                         entities2=split_name(name2)
 
+                        #name entities set
                         result= set(entities1+entities2)
 
+                        #get the count of each name entity
                         d1=get_all_word_counts(result,entities1)
                         d2=get_all_word_counts(result,entities2)
+                        #similarity of name entities.
                         names_similarity = cosine_similarity(list(d1.values()),list(d2.values()))
                         
                         # calculate the sum of content similarity and name similarity
-
                         simi = contents_similarity + 0.5 * names_similarity
-                        # save
+                        # save to database
                         articlematch = Articlematch(News = article, Match_News=ids[pk2], Weight = simi, Content_similarity = contents_similarity, Name_similarity = names_similarity)
                         articlematch.save()
                     except Exception as err:
@@ -157,6 +164,7 @@ def get_all_word_counts(wordunion,entities):
             word_counts[word]+=1          #Increment the count accordingly
     return word_counts
 
+#split name entities
 def split_name(namelist):
     new_name=[]
     for element in namelist:

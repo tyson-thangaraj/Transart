@@ -35,15 +35,21 @@ def createArticleByUrl(url):
     return article
 
 def getArticleDetailsByUrl(url):
+
+    # fetch news using the library newspaper
     article = newspaper.Article(url)
     article.download()
     article.parse()
 
+    #get the title of the news
     title = article.title
+    #the description
     sub_title=article.meta_description
     # authors = article.authors
+    #the date that the news published. Maybe edited later
     date = article.publish_date
 
+    #get the contents of the news
     news_content = article.text
     image = article.top_image
 
@@ -52,10 +58,12 @@ def getArticleDetailsByUrl(url):
 
     source = "other"
     if "chinadaily" in url:
+        #using beautifulsoup to get descrape the html
         page = urllib.request.urlopen(url).read()
         soup = BeautifulSoup(page,"html.parser")
         soup.prettify()
         source = "ChinaDaily"
+        # get the published date. the date that the library newspaper got is not what we need.
         tag = soup.find("span", attrs={"class": "greyTxt6 block mb15"})
         if tag != None:
             date_tag = tag.get_text()
@@ -63,12 +71,14 @@ def getArticleDetailsByUrl(url):
             date = datetime.strptime(date, "%Y-%m-%d %H:%M")
             date = date.replace(tzinfo=utc) - timedelta(hours=8)
     elif "bbc" in url:
+        #using beautifulsoup to get descrape the html to get the date
         page = urllib.request.urlopen(url).read()
         soup = BeautifulSoup(page,"html.parser")
         soup.prettify()
         source = "BBC"
+        #get javascript from html
         newsscripts = str(soup.find("script", attrs={"type": "application/ld+json"}).string)
-
+        #get the published date in javascript
         from json import loads as JSON
         parsed = JSON(newsscripts)
         date = parsed['datePublished']
@@ -77,6 +87,7 @@ def getArticleDetailsByUrl(url):
 
     elif "nytimes" in url:
         source="The New York Times"
+        #scrape the html with HTTPCookieProcessor
         cj = CookieJar()
         opener = urllib.request.build_opener(urllib.request.HTTPCookieProcessor(cj))
         p = opener.open(url).read()
@@ -87,6 +98,7 @@ def getArticleDetailsByUrl(url):
     elif "reuters" in url:
         source="Reuters"
     elif "sina" in url:
+        #using beautifulsoup to get descrape the html to get the date
         page = urllib.request.urlopen(url).read()
         soup = BeautifulSoup(page,"html.parser",from_encoding="GB18030")
         soup.prettify()
@@ -116,6 +128,7 @@ def getArticleDetailsByUrl(url):
         keywords = extractKeywords(title)
     elif "channelnewsasia" in url:
         source = "Channel NewsAsia"
+        #using beautifulsoup to get descrape the html to get the date
         page = urllib.request.urlopen(url).read()
         soup = BeautifulSoup(page,"html.parser")
         soup.prettify()
@@ -134,8 +147,9 @@ def getArticleDetailsByUrl(url):
 
     return [title, sub_title, news_content, date, keywords, source, image]
 
+#extrack keywords
 def extractKeywords(text):
-    stop_words = load_stopwords()
+    stop_words = nltk.corpus.stopwords.words('english')
     keywords = []
     tokens = nltk.word_tokenize(text)
 
@@ -143,28 +157,6 @@ def extractKeywords(text):
         if token not in stop_words:
             keywords.append(token.lower())
     return ", ".join(keywords)
-
-def load_stopwords():
-    stop_words = nltk.corpus.stopwords.words('english')
-    # custom stop words
-    stop_words.extend(['this', 'that', 'the', 'might', 'have', 'been', 'from',
-                           'but', 'they', 'will', 'has', 'having', 'had', 'how', 'went'
-                            'were', 'why', 'and', 'still', 'his','her',
-                           'was', 'its', 'per', 'cent',
-                           'a', 'able', 'about', 'across', 'after', 'all', 'almost', 'also', 'am', 'among',
-                           'an', 'and', 'any', 'are', 'as', 'at', 'be', 'because', 'been', 'but', 'by', 'can',
-                           'cannot', 'could', 'dear', 'did', 'do', 'does', 'either', 'else', 'ever', 'every',
-                           'for', 'from', 'get', 'got', 'had', 'has', 'have', 'he', 'her', 'hers', 'him', 'his',
-                           'how', 'however', 'i', 'if', 'in', 'into', 'is', 'it', 'its', 'just', 'least', 'let',
-                           'like', 'likely', 'may', 'me', 'might', 'most', 'must', 'my', 'neither', 'no', 'nor',
-                           'not', 'of', 'off', 'often', 'on', 'only', 'or', 'other', 'our', 'own', 'rather', 'said',
-                           'say', 'says', 'she', 'should', 'since', 'so', 'some', 'than', 'that', 'the', 'their',
-                           'them', 'then', 'there', 'these', 'they', 'this', 'tis', 'to', 'too', 'twas', 'us',
-                           'wants', 'was', 'we', 'were', 'what', 'when', 'where', 'which', 'while', 'who',
-                           'whom', 'why', 'will', 'with', 'would', 'yet', 'you', 'your', 've', 're', 'rt'])
-    #turn list into set for faster search
-    stop_words = set(stop_words)
-    return stop_words
 
 # google translate API 
 def googleTranslate(text):
