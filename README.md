@@ -16,7 +16,7 @@ What we used:
 User login / register
 
 ### 2. articles
-This app is used to fetch news throug Rss feeds and save them to the database.
+This app is used to fetch news througg Rss feeds and save them to the database.
 
 ### 3. articlematch
 This app is used to calculate the similarity of news.
