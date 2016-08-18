@@ -29,7 +29,9 @@ Clone the whole project using the following commands:
     $ git clone git@github.com:ucd-nlmsc-teamproject/Transart.git
 
 ### 1. fetch news with reis & celery
+    one terminal:
     $ redis-server &
+    another terminal:
     $ python manage.py celeryd -l info -B -c 5
 
 ### 2. start the server
