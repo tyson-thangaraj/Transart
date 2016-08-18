@@ -10,6 +10,7 @@ What we used:
 * [Django](https://www.djangoproject.com)
 * [Django Rest Framework](http://www.django-rest-framework.org)
 * [PostgreSql](https://www.postgresql.org)
+* [redis&celery](http://www.celeryproject.org)
 
 ### 1. accounts
 User login / register
