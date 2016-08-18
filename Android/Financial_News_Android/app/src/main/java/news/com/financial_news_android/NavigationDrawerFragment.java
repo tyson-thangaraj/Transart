@@ -29,6 +29,8 @@ import android.widget.Toast;
  * Fragment used for managing interactions for and presentation of a navigation drawer.
  * See the <a href="https://developer.android.com/design/patterns/navigation-drawer.html#Interaction">
  * design guidelines</a> for a complete explanation of the behaviors implemented here.
+ *
+ * Created by Ping He
  */
 public class NavigationDrawerFragment extends Fragment {
 
@@ -107,6 +109,7 @@ public class NavigationDrawerFragment extends Fragment {
 
         in_out = (TextView) draw.findViewById(R.id.textView5);
 
+        // set listener to go to Login page
         draw.findViewById(R.id.logout).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -119,6 +122,7 @@ public class NavigationDrawerFragment extends Fragment {
             }
         });
 
+        // if no user logins, go to Login page, otherwise go to FavsActivity
         draw.findViewById(R.id.linearLayout3).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -133,6 +137,7 @@ public class NavigationDrawerFragment extends Fragment {
             }
         });
 
+        // go to About Page
         draw.findViewById(R.id.aboutus).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -152,6 +157,7 @@ public class NavigationDrawerFragment extends Fragment {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
+        // see the result returning from login page
         if (data != null) {
             username = data.getStringExtra("user");
 

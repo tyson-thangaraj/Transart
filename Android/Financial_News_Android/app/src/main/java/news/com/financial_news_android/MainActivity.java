@@ -77,6 +77,11 @@ import java.util.List;
 
 import cz.msebera.android.httpclient.Header;
 
+/*
+* A page which shows BBC news and has a left side menu
+*
+* Created by Ping He
+* */
 public class MainActivity extends Activity
         implements NavigationDrawerFragment.NavigationDrawerCallbacks {
 
@@ -238,7 +243,7 @@ public class MainActivity extends Activity
                 super.handleMessage(msg);
 
                 articles.addAll(0, (ArrayList<Article>) msg.obj);
-                lv.setAdapter(new UsersAdapter(getActivity(), articles));
+                lv.setAdapter(new BBCsAdapter(getActivity(), articles));
 
             }
         };
@@ -247,6 +252,7 @@ public class MainActivity extends Activity
         public void refresh(){
             swipeContainer.setRefreshing(true);
 
+            // request in 5 last day news
             SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             Calendar cal = Calendar.getInstance();
             cal.add(Calendar.DATE, -5);
@@ -254,6 +260,7 @@ public class MainActivity extends Activity
             String[] s = requestDatetime.split(" ");
             requestDatetime = s[0] + "T" + s[1] + "Z";
 
+            // delete data before 3 days from local
             Calendar cal3 = Calendar.getInstance();
             cal3.add(Calendar.DATE, -3);
             time3 = df.format(cal3.getTime());
@@ -262,22 +269,21 @@ public class MainActivity extends Activity
 
             SQLite.delete(Article.class).where(Article_Table.datetime.lessThanOrEq(requestDatetime))
                     .and(Article_Table.isFav.isNot("1")).execute();
+
+            // collect BBC news
             articles = SQLite.select().from(Article.class).where(Article_Table.source.is("BBC")).and(Article_Table.datetime.greaterThanOrEq(time3)).orderBy(Article_Table.datetime, false).queryList();
 
             if (articles != null && articles.size() > 0) {
                 if (lv.getAdapter() == null || lv.getAdapter().getCount() == 0) {
-                    lv.setAdapter(new UsersAdapter(getActivity(), articles));}
+                    lv.setAdapter(new BBCsAdapter(getActivity(), articles));}
                 android.database.Cursor aa = SQLite.select(Method.max(Article_Table.datetime)).from(Article.class).query();
                 aa.moveToFirst();
                 String max = aa.getString(0);
 
                 requestDatetime = requestDatetime.compareTo(max) < 0 ? max : requestDatetime;
 
-
-
-                //Toast.makeText(getActivity(), aa.getString(0), Toast.LENGTH_LONG).show();
             }
-            //else {
+
             AsyncHttpClient c = new AsyncHttpClient();
 
             RequestParams rp = new RequestParams();
@@ -294,6 +300,8 @@ public class MainActivity extends Activity
                     ArrayList<Article> bbc = new ArrayList<Article>();
                     JSONObject obj;
                     Article art;
+
+                    // parse data which is from server end
                     for (int i = 0; i < size; i++) {
                         art = new Article();
 
@@ -321,6 +329,7 @@ public class MainActivity extends Activity
                         }
                     }
 
+                    // save to database and show data onto the screen
                     if (articles.size() > 0) {
                     FastStoreModelTransaction.insertBuilder(FlowManager.getModelAdapter(Article.class))
                             .addAll(articles).build().execute(FlowManager.getDatabase(AppDatabase.class).getWritableDatabase());}
@@ -341,6 +350,7 @@ public class MainActivity extends Activity
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
+            // load layout
             View rootView = inflater.inflate(R.layout.fragment_main, container, false);
 
             lv = (ListView) rootView.findViewById(R.id.listView);
@@ -358,7 +368,6 @@ public class MainActivity extends Activity
 
             refresh();
 
-
             // Setup refresh listener which triggers new data loading
             swipeContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
                 @Override
@@ -375,16 +384,11 @@ public class MainActivity extends Activity
                     android.R.color.holo_orange_light,
                     android.R.color.holo_red_light);
 
-            //}
-
-
-
-
             return rootView;
         }
 
-        public class UsersAdapter extends ArrayAdapter<Article> {
-            public UsersAdapter(Context context, List<Article> users) {
+        public class BBCsAdapter extends ArrayAdapter<Article> {
+            public BBCsAdapter(Context context, List<Article> users) {
                 super(context, 0, users);
             }
 
@@ -444,7 +448,6 @@ public class MainActivity extends Activity
                         });
                     }
 
-
                 } else {
                     setDefaultPic(iv);
                 }
@@ -453,6 +456,9 @@ public class MainActivity extends Activity
             }
         }
 
+        /*
+        * If news has no pic, show default pic
+        * */
         public void setDefaultPic(ImageView iv) {
             Article art = (Article) iv.getTag();
             String source = art.getSource();
@@ -469,9 +475,11 @@ public class MainActivity extends Activity
                 iv.setImageResource(R.drawable.sample);
             }
 
-
         }
 
+        /*
+        * judge if file exists in local
+        * */
         public File imageExsit(String fname) {
             String root = Environment.getExternalStorageDirectory().toString();
             File myDir = new File(root + "/financial_eye");
@@ -491,8 +499,10 @@ public class MainActivity extends Activity
             return null;
         }
 
+        /*
+        * save pic from internet to local
+        * */
         public String saveImage(Bitmap finalBitmap, String fname) {
-
             String root = Environment.getExternalStorageDirectory().toString();
             File myDir = new File(root + "/financial_eye");
             if (!myDir.exists()) {

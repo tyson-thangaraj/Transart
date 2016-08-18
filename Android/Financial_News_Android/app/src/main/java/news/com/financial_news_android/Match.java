@@ -9,7 +9,9 @@ import com.raizlabs.android.dbflow.annotation.Table;
 import com.raizlabs.android.dbflow.structure.BaseModel;
 
 /**
- * Created by ping on 2016/6/28.
+ * A model corresponding to table Match
+ *
+ * Created by Ping He
  */
 @Table(database = AppDatabase.class)
 public class Match extends BaseModel{
@@ -17,11 +19,17 @@ public class Match extends BaseModel{
     @PrimaryKey(autoincrement = true)
     long id;
 
+    // the article id of the news
     @Column
     private long articleid;
 
+    // the article id of the matched news
     @Column
     private long matchid;
+
+    // similarity between the two news
+    @Column
+    private double weight;
 
     public long getArticleid() {
         return articleid;
@@ -46,10 +54,5 @@ public class Match extends BaseModel{
     public void setWeight(double weight) {
         this.weight = weight;
     }
-
-    @Column
-    private double weight;
-
-
 
 }

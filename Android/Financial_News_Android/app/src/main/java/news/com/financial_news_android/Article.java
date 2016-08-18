@@ -9,13 +9,69 @@ import com.raizlabs.android.dbflow.annotation.Table;
 import com.raizlabs.android.dbflow.structure.BaseModel;
 
 /**
- * Created by ping on 2016/6/28.
+ * A model corresponding to table Article
+ *
+ * Created by Ping He on 2016/6/28.
  */
 @Table(database = AppDatabase.class)
 public class Article extends BaseModel implements Parcelable {
 
+    public Article() {}
+
+    // id (auto increment)
     @PrimaryKey(autoincrement = true)
     long id;
+
+    // the id of the article
+    @Column
+    private long articleid;
+
+    // whether this article is liked by user
+    @Column
+    private String isFav;
+
+    // the title of the article
+    @Column
+    private String headline;
+
+    // the subtitle of the article
+    @Column
+    private String subHeadline;
+
+    // article url
+    @Column
+    private String url;
+
+    // article datetime
+    @Column
+    private String datetime;
+
+    // article keywords
+    @Column
+    private String keywords;
+
+    // article content
+    @Column
+    private String content;
+
+    // user feedback
+    @Column
+    private int feedback;
+
+    // url of news image
+    @Column
+    private String image;
+
+    // local image path of news
+    @Column
+    private String localImage;
+
+    @Column
+    private String type;
+
+    // news source
+    @Column
+    private String source;
 
     public long getArticleid() {
         return articleid;
@@ -25,9 +81,6 @@ public class Article extends BaseModel implements Parcelable {
         this.articleid = articleid;
     }
 
-    @Column
-    private long articleid;
-
     public String getIsFav() {
         return isFav;
     }
@@ -36,27 +89,6 @@ public class Article extends BaseModel implements Parcelable {
         isFav = fav;
     }
 
-    @Column
-    private String isFav;
-
-    @Column
-    private String headline;
-
-    @Column
-    private String subHeadline;
-
-    @Column
-    private String url;
-
-    @Column
-    private String datetime;
-
-    @Column
-    private String keywords;
-
-    @Column
-    private String content;
-
     public int getFeedback() {
         return feedback;
     }
@@ -64,9 +96,6 @@ public class Article extends BaseModel implements Parcelable {
     public void setFeedback(int feedback) {
         this.feedback = feedback;
     }
-
-    @Column
-    private int feedback;
 
     public String getImage() {
         return image;
@@ -83,12 +112,6 @@ public class Article extends BaseModel implements Parcelable {
     public void setLocalImage(String localImage) {
         this.localImage = localImage;
     }
-
-    @Column
-    private String image;
-
-    @Column
-    private String localImage;
 
     public String getHeadline() {
         return headline;
@@ -146,9 +169,6 @@ public class Article extends BaseModel implements Parcelable {
         this.type = type;
     }
 
-    @Column
-    private String type;
-
     public String getSource() {
         return source;
     }
@@ -157,16 +177,10 @@ public class Article extends BaseModel implements Parcelable {
         this.source = source;
     }
 
-    @Column
-    private String source;
-
-
     @Override
     public int describeContents() {
         return 0;
     }
-
-
 
     // write your object's data to the passed-in Parcel
     @Override
@@ -193,8 +207,6 @@ public class Article extends BaseModel implements Parcelable {
             return new Article[size];
         }
     };
-
-    public Article() {}
 
     // example constructor that takes a Parcel and gives you an object populated with it's values
     public Article(Parcel in) {

@@ -56,6 +56,8 @@ import static android.Manifest.permission.READ_CONTACTS;
 
 /**
  * A login screen that offers login via email/password.
+ *
+ * Created by Ping He
  */
 public class Login extends AppCompatActivity implements LoaderCallbacks<Cursor> {
 
@@ -94,139 +96,132 @@ public class Login extends AppCompatActivity implements LoaderCallbacks<Cursor> 
         mPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
-                if (id == R.id.login || id == EditorInfo.IME_NULL) {
-                    attemptLogin();
-                    return true;
-                }
-                return false;
+            if (id == R.id.login || id == EditorInfo.IME_NULL) {
+                attemptLogin();
+                return true;
+            }
+            return false;
             }
         });
 
+        // login button
         Button mEmailSignInButton = (Button) findViewById(R.id.email_sign_in_button);
         mEmailSignInButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
-                //attemptLogin();
+            AsyncHttpClient c = new AsyncHttpClient();
 
-                AsyncHttpClient c = new AsyncHttpClient();
+            RequestParams rp = new RequestParams();
+            rp.add("username", mEmailView.getText().toString());
+            rp.add("password", mPasswordView.getText().toString());
+            rp.add("format", "json");
 
-                RequestParams rp = new RequestParams();
-                rp.add("username", mEmailView.getText().toString());
-                rp.add("password", mPasswordView.getText().toString());
-                rp.add("format", "json");
+            c.get("http://137.43.93.133:8000/accounts/login/", rp, new JsonHttpResponseHandler() {
+                @Override
+                public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                    super.onSuccess(statusCode, headers, response);
 
-                c.get("http://137.43.93.133:8000/accounts/login/", rp, new JsonHttpResponseHandler() {
-                    @Override
-                    public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                        super.onSuccess(statusCode, headers, response);
+                    String info = "";
 
-                        String info = "";
-
-                        try {
-                            info = response.getJSONArray("Info").get(0).toString();
-                        } catch (Exception e) {
-                        }
-
-                        if ("Sucessfully login".equals(info)) {
-                            //PreferenceManager.getDefaultSharedPreferences(Login.this).edit().putString("user", mEmailView.getText().toString()).commit();
-
-                            //Intent i = new Intent(Login.this, MainActivity.class);
-                            //Login.this.startActivity(i);
-                            Intent i = getIntent();
-                            i.putExtra("user", mEmailView.getText().toString());
-                            Login.this.setResult(0, i);
-                            Login.this.finish();
-                        } else {
-                            Toast.makeText(Login.this, info, Toast.LENGTH_LONG).show();
-                        }
-
-
-
+                    try {
+                        info = response.getJSONArray("Info").get(0).toString();
+                    } catch (Exception e) {
                     }
 
-
-                    @Override
-                    public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
-                        super.onFailure(statusCode, headers, responseString, throwable);
-                    }
-
-                    @Override
-                    public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
-                        super.onFailure(statusCode, headers, throwable, errorResponse);
-                    }
-                });
-            }
-        });
-
-        Button registerButton = (Button) findViewById(R.id.email_register_button);
-        registerButton.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                //attemptLogin();
-
-                AsyncHttpClient c = new AsyncHttpClient();
-
-                RequestParams rp = new RequestParams();
-                rp.add("username", mEmailView.getText().toString());
-                rp.add("password", mPasswordView.getText().toString());
-                rp.add("format", "json");
-
-                c.get("http://137.43.93.133:8000/accounts/register/", rp, new JsonHttpResponseHandler() {
-                    @Override
-                    public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                        super.onSuccess(statusCode, headers, response);
-
+                    if ("Sucessfully login".equals(info)) {
                         //PreferenceManager.getDefaultSharedPreferences(Login.this).edit().putString("user", mEmailView.getText().toString()).commit();
 
                         //Intent i = new Intent(Login.this, MainActivity.class);
                         //Login.this.startActivity(i);
-                        //Login.this.finish();
-
                         Intent i = getIntent();
                         i.putExtra("user", mEmailView.getText().toString());
                         Login.this.setResult(0, i);
                         Login.this.finish();
-
+                    } else {
+                        Toast.makeText(Login.this, info, Toast.LENGTH_LONG).show();
                     }
+                }
 
-                    @Override
-                    public void onSuccess(int statusCode, Header[] headers, JSONArray response) {
-                        super.onSuccess(statusCode, headers, response);
-                    }
+                @Override
+                public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
+                    super.onFailure(statusCode, headers, responseString, throwable);
+                }
 
-                    @Override
-                    public void onSuccess(int statusCode, Header[] headers, String responseString) {
-                        super.onSuccess(statusCode, headers, responseString);
-                    }
-
-                    @Override
-                    public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
-                        super.onFailure(statusCode, headers, responseString, throwable);
-                    }
-
-                    @Override
-                    public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
-                        super.onFailure(statusCode, headers, throwable, errorResponse);
-
-                        String notice = "";
-
-                        try {
-                            notice = errorResponse.getString("Username");
-                        } catch (JSONException e) {
-
-                        }
-
-                        Toast.makeText(Login.this, notice, Toast.LENGTH_LONG).show();
-                    }
-
-                    @Override
-                    public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONArray errorResponse) {
-                        super.onFailure(statusCode, headers, throwable, errorResponse);
-                    }
-                });
+                @Override
+                public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+                    super.onFailure(statusCode, headers, throwable, errorResponse);
+                }
+            });
             }
         });
 
+        // register button
+        Button registerButton = (Button) findViewById(R.id.email_register_button);
+        registerButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+            AsyncHttpClient c = new AsyncHttpClient();
+
+            RequestParams rp = new RequestParams();
+            rp.add("username", mEmailView.getText().toString());
+            rp.add("password", mPasswordView.getText().toString());
+            rp.add("format", "json");
+
+            c.get("http://137.43.93.133:8000/accounts/register/", rp, new JsonHttpResponseHandler() {
+                @Override
+                public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                    super.onSuccess(statusCode, headers, response);
+
+                    //PreferenceManager.getDefaultSharedPreferences(Login.this).edit().putString("user", mEmailView.getText().toString()).commit();
+
+                    //Intent i = new Intent(Login.this, MainActivity.class);
+                    //Login.this.startActivity(i);
+                    //Login.this.finish();
+
+                    Intent i = getIntent();
+                    i.putExtra("user", mEmailView.getText().toString());
+                    Login.this.setResult(0, i);
+                    Login.this.finish();
+
+                }
+
+                @Override
+                public void onSuccess(int statusCode, Header[] headers, JSONArray response) {
+                    super.onSuccess(statusCode, headers, response);
+                }
+
+                @Override
+                public void onSuccess(int statusCode, Header[] headers, String responseString) {
+                    super.onSuccess(statusCode, headers, responseString);
+                }
+
+                @Override
+                public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
+                    super.onFailure(statusCode, headers, responseString, throwable);
+                }
+
+                @Override
+                public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+                    super.onFailure(statusCode, headers, throwable, errorResponse);
+
+                    String notice = "";
+
+                    try {
+                        notice = errorResponse.getString("Username");
+                    } catch (JSONException e) {
+
+                    }
+
+                    Toast.makeText(Login.this, notice, Toast.LENGTH_LONG).show();
+                }
+
+                @Override
+                public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONArray errorResponse) {
+                    super.onFailure(statusCode, headers, throwable, errorResponse);
+                }
+            });
+            }
+        });
 
         mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);

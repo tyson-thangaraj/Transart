@@ -5,10 +5,10 @@
     android:layout_height="match_parent"
     tools:context="news.com.financial_news_android.MainActivity"
     >
-<android.support.v4.widget.DrawerLayout
-    android:id="@+id/drawer_layout"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    <android.support.v4.widget.DrawerLayout
+        android:id="@+id/drawer_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
     >
 
     <!-- As the main content view, the view below consumes the entire
@@ -29,31 +29,31 @@
         tools:layout="@layout/drawer_main"
         />
 
-</android.support.v4.widget.DrawerLayout>
-<RelativeLayout
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="#ff0000"
-    android:id="@+id/loading">
+    </android.support.v4.widget.DrawerLayout>
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#ff0000"
+        android:id="@+id/loading">
 
 
-    <ImageView
-        android:layout_width="125dp"
-        android:layout_height="125dp"
-        android:id="@+id/imageView11"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="105dp"
-        android:src="@mipmap/icon" />
+        <ImageView
+            android:layout_width="125dp"
+            android:layout_height="125dp"
+            android:id="@+id/imageView11"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="105dp"
+            android:src="@mipmap/icon" />
 
-    <EditText
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/editText2"
-        android:layout_below="@+id/imageView11"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="40dp"
-        android:text="Financial Eye"
-        android:textSize="40sp" />
-</RelativeLayout>
+        <EditText
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/editText2"
+            android:layout_below="@+id/imageView11"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="40dp"
+            android:text="Financial Eye"
+            android:textSize="40sp" />
+    </RelativeLayout>
 </FrameLayout>

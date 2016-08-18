@@ -34,6 +34,11 @@ import java.util.ArrayList;
 
 import cz.msebera.android.httpclient.Header;
 
+/**
+ * A page showing news content
+ *
+ * Created by Ping He
+ */
 public class NewsActivity extends Activity {
 
     String original = "";
@@ -43,6 +48,7 @@ public class NewsActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_news);
 
+        // fetch news detail from database
         final Article art = getIntent().getParcelableExtra("article");
         Article temp = SQLite.select(Article_Table.isFav, Article_Table.feedback).from(Article.class).where(Article_Table.articleid.is(art.getArticleid())).querySingle();
         original = String.valueOf(art.getArticleid());
@@ -61,99 +67,100 @@ public class NewsActivity extends Activity {
         String t = art.getDatetime().replace("T", " ");
         t = t.replace("Z", "");
         ((TextView) findViewById(R.id.source)).setText("From " + art.getSource() + " " + t);
-
         ((TextView) findViewById(R.id.textView9)).setText(art.getContent());
 
         final ImageView fav = (ImageView) findViewById(R.id.imageView9);
         if (!NavigationDrawerFragment.isUser) {
             fav.setVisibility(View.GONE);
         }
+
         fav.setImageResource("1".equals(art.getIsFav()) ? R.drawable.favourite_select : R.drawable.favourite_news);
         fav.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if ("1".equals(art.getIsFav())) {
-                    SQLite.update(Article.class).set(Article_Table.isFav.eq("0"))
-                            .where(Article_Table.articleid.is(art.getArticleid())).execute();
-                    //Article temp = SQLite.select(Article_Table.isFav).from(Article.class).where(Article_Table.articleid.is(art.getArticleid())).querySingle();
-                    fav.setImageResource(R.drawable.favourite_news);
-                    art.setIsFav("0");
-                } else {
-                    SQLite.update(Article.class).set(Article_Table.isFav.eq("1"))
-                            .where(Article_Table.articleid.is(art.getArticleid())).execute();
-                    //Article temp = SQLite.select(Article_Table.isFav).from(Article.class).where(Article_Table.articleid.is(art.getArticleid())).querySingle();
-                    fav.setImageResource(R.drawable.favourite_select);
-                    art.setIsFav("1");
-                }
+            if ("1".equals(art.getIsFav())) {
+                SQLite.update(Article.class).set(Article_Table.isFav.eq("0"))
+                        .where(Article_Table.articleid.is(art.getArticleid())).execute();
+                //Article temp = SQLite.select(Article_Table.isFav).from(Article.class).where(Article_Table.articleid.is(art.getArticleid())).querySingle();
+                fav.setImageResource(R.drawable.favourite_news);
+                art.setIsFav("0");
+            } else {
+                SQLite.update(Article.class).set(Article_Table.isFav.eq("1"))
+                        .where(Article_Table.articleid.is(art.getArticleid())).execute();
+                //Article temp = SQLite.select(Article_Table.isFav).from(Article.class).where(Article_Table.articleid.is(art.getArticleid())).querySingle();
+                fav.setImageResource(R.drawable.favourite_select);
+                art.setIsFav("1");
+            }
             }
         });
 
+        // show the related news
         final Handler h = new Handler() {
             @Override
             public void handleMessage(Message msg) {
-                super.handleMessage(msg);
+            super.handleMessage(msg);
 
-                ArrayList<Match> matches = (ArrayList<Match>) msg.obj;
+            ArrayList<Match> matches = (ArrayList<Match>) msg.obj;
 
-                int size = matches.size();
-                ArrayList<Article> as = new ArrayList<Article>();
-                for (int i = size - 1; i > -1; i--) {
-                    Article temp = SQLite.select().from(Article.class).where(Article_Table.articleid.is(matches.get(i).getMatchid())).querySingle();
+            int size = matches.size();
+            ArrayList<Article> as = new ArrayList<Article>();
+            for (int i = size - 1; i > -1; i--) {
+                Article temp = SQLite.select().from(Article.class).where(Article_Table.articleid.is(matches.get(i).getMatchid())).querySingle();
 
-                    if (temp == null) {
-                        continue;
-                    }
-                    if (!"BBC".equals(temp.getSource())) {
-                        as.add(0, temp);
-                    } else {
-                        as.add(temp);
-                    }
+                if (temp == null) {
+                    continue;
+                }
+                if (!"BBC".equals(temp.getSource())) {
+                    as.add(0, temp);
+                } else {
+                    as.add(temp);
+                }
+            }
+
+
+            findViewById(R.id.relatedstory).setVisibility(as.size()==0?View.GONE:View.VISIBLE);
+            findViewById(R.id.no_relevant).setVisibility(as.size()==0?View.VISIBLE:View.GONE);
+            findViewById(R.id.r1).setVisibility(View.GONE);
+            findViewById(R.id.r2).setVisibility(View.GONE);
+            findViewById(R.id.r3).setVisibility(View.GONE);
+            findViewById(R.id.r4).setVisibility(View.GONE);
+            findViewById(R.id.r5).setVisibility(View.GONE);
+            for (int i = 0; i < as.size(); i++) {
+                //Article temp = SQLite.select().from(Article.class).where(Article_Table.articleid.is(matches.get(i).getMatchid())).querySingle();
+                Article temp = as.get(i);
+                if (temp == null) {
+                    continue;
                 }
 
-
-                findViewById(R.id.relatedstory).setVisibility(as.size()==0?View.GONE:View.VISIBLE);
-                findViewById(R.id.no_relevant).setVisibility(as.size()==0?View.VISIBLE:View.GONE);
-                findViewById(R.id.r1).setVisibility(View.GONE);
-                findViewById(R.id.r2).setVisibility(View.GONE);
-                findViewById(R.id.r3).setVisibility(View.GONE);
-                findViewById(R.id.r4).setVisibility(View.GONE);
-                findViewById(R.id.r5).setVisibility(View.GONE);
-                for (int i = 0; i < as.size(); i++) {
-                    //Article temp = SQLite.select().from(Article.class).where(Article_Table.articleid.is(matches.get(i).getMatchid())).querySingle();
-                    Article temp = as.get(i);
-                    if (temp == null) {
-                        continue;
-                    }
-
-                    View view=null;
-                    if (i == 0) {
-                        view=findViewById(R.id.r1);
-                        view.setVisibility(View.VISIBLE);
-                        setRelated(temp,view,matches.get(i).getWeight());
-                    } else if (i == 1) {
-                        view=findViewById(R.id.r2);
-                        view.setVisibility(View.VISIBLE);
-                        setRelated(temp,view,matches.get(i).getWeight());
-                    } else if (i == 2) {
-                        view=findViewById(R.id.r3);
-                        view.setVisibility(View.VISIBLE);
-                        setRelated(temp,view,matches.get(i).getWeight());
-                    } else if (i == 3) {
-                        view=findViewById(R.id.r4);
-                        view.setVisibility(View.VISIBLE);
-                        setRelated(temp,view,matches.get(i).getWeight());
-                    } else if (i == 4) {
-                        view=findViewById(R.id.r5);
-                        view.setVisibility(View.VISIBLE);
-                        setRelated(temp,view,matches.get(i).getWeight());
-                    }
+                View view=null;
+                if (i == 0) {
+                    view=findViewById(R.id.r1);
+                    view.setVisibility(View.VISIBLE);
+                    setRelated(temp,view,matches.get(i).getWeight());
+                } else if (i == 1) {
+                    view=findViewById(R.id.r2);
+                    view.setVisibility(View.VISIBLE);
+                    setRelated(temp,view,matches.get(i).getWeight());
+                } else if (i == 2) {
+                    view=findViewById(R.id.r3);
+                    view.setVisibility(View.VISIBLE);
+                    setRelated(temp,view,matches.get(i).getWeight());
+                } else if (i == 3) {
+                    view=findViewById(R.id.r4);
+                    view.setVisibility(View.VISIBLE);
+                    setRelated(temp,view,matches.get(i).getWeight());
+                } else if (i == 4) {
+                    view=findViewById(R.id.r5);
+                    view.setVisibility(View.VISIBLE);
+                    setRelated(temp,view,matches.get(i).getWeight());
                 }
-
+            }
             }
         };
 
         //findViewById(R.id.relatedstory).setVisibility("BBC".equals(art.getSource()) ? View.VISIBLE : View.GONE);
 
+        // if bbc news, fetch related news from server end
         if ("BBC".equals(art.getSource())) {
 
             java.util.List<Match> ms = SQLite.select().from(Match.class).where(Match_Table.articleid.is(art.getArticleid())).orderBy(Match_Table.weight, false).queryList();
@@ -162,7 +169,6 @@ public class NewsActivity extends Activity {
             if (ms.size() > 0) {
                 h.sendMessage(Message.obtain(h, 1, mms));
             }
-            //else {
 
             AsyncHttpClient c = new AsyncHttpClient();
 
@@ -178,24 +184,20 @@ public class NewsActivity extends Activity {
 
                     ArrayList<Match> matches = new ArrayList<Match>();
                     try {
-                    JSONArray response = o.getJSONArray("results");
-                    int size = response.length();
+                        JSONArray response = o.getJSONArray("results");
+                        int size = response.length();
 
-                    JSONObject obj;
-                    Match match;
-                    for (int i = 0; i < size; i++) {
-                        match = new Match();
-
+                        JSONObject obj;
+                        Match match;
+                        for (int i = 0; i < size; i++) {
+                            match = new Match();
 
                             obj = response.getJSONObject(i);
                             match.setArticleid(Long.parseLong(obj.getString("News")));
                             match.setMatchid(Long.parseLong(obj.getString("Match_News")));
                             match.setWeight(Double.parseDouble(obj.getString("Weight")));
-
                             matches.add(match);
-
-
-                    }
+                        }
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
@@ -204,20 +206,17 @@ public class NewsActivity extends Activity {
                     {
                         SQLite.delete(Match.class).where(Match_Table.articleid.eq(art.getArticleid()))
                                 .execute();
-                    FastStoreModelTransaction.insertBuilder(FlowManager.getModelAdapter(Match.class))
-                            .addAll(matches).build().execute(FlowManager.getDatabase(AppDatabase.class).getWritableDatabase());
+                        FastStoreModelTransaction.insertBuilder(FlowManager.getModelAdapter(Match.class))
+                                .addAll(matches).build().execute(FlowManager.getDatabase(AppDatabase.class).getWritableDatabase());
 
-                    h.sendMessage(Message.obtain(h, 1, matches));}
-
+                        h.sendMessage(Message.obtain(h, 1, matches));}
                 }
-
 
                 @Override
                 public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
                     super.onFailure(statusCode, headers, responseString, throwable);
                 }
             });
-            //}
 
             String o = getIntent().getStringExtra("original");
             if (o == null || "".equals(o)) {
@@ -259,7 +258,6 @@ public class NewsActivity extends Activity {
                     findViewById(R.id.relevant).setBackgroundResource(R.drawable.like_grey);
                     findViewById(R.id.irrelevant).setBackgroundResource(R.drawable.dislike);
 
-
                     AsyncHttpClient c = new AsyncHttpClient();
 
                     RequestParams rp = new RequestParams();
@@ -273,9 +271,6 @@ public class NewsActivity extends Activity {
                         public void onSuccess(int statusCode, Header[] headers, JSONObject o) {
                             super.onSuccess(statusCode, headers, o);
                         }
-
-
-
 
                         @Override
                         public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
@@ -307,7 +302,6 @@ public class NewsActivity extends Activity {
                     findViewById(R.id.relevant).setBackgroundResource(R.drawable.like);
                     findViewById(R.id.irrelevant).setBackgroundResource(R.drawable.dislike_grey);
 
-
                     AsyncHttpClient c = new AsyncHttpClient();
 
                     RequestParams rp = new RequestParams();
@@ -334,33 +328,27 @@ public class NewsActivity extends Activity {
 
         ImageView iv = (ImageView) findViewById(R.id.imageView10);
 
-
-
         if (art.getImage() != null && !"".equals(art.getImage())) {
             if ("Sina".equals(art.getSource())) {
                 iv.setImageResource(R.drawable.sina);
             } else {
-
-
-            File file = imageExsit(Base64.encodeToString(art.getImage().getBytes(), Base64.DEFAULT) + ".jpg");
-            //ImageLoader.getInstance().displayImage(Uri.fromFile(file).toString(), iv);
-            if (file != null)
-                try {
-                    //iv.setImageBitmap(BitmapFactory.decodeStream(new FileInputStream(file)));
-                    String u = Uri.fromFile(file).toString();
-                    ImageLoader.getInstance().displayImage(Uri.decode(u), iv);
-                } catch (Exception e) {
+                File file = imageExsit(Base64.encodeToString(art.getImage().getBytes(), Base64.DEFAULT) + ".jpg");
+                //ImageLoader.getInstance().displayImage(Uri.fromFile(file).toString(), iv);
+                if (file != null)
+                    try {
+                        //iv.setImageBitmap(BitmapFactory.decodeStream(new FileInputStream(file)));
+                        String u = Uri.fromFile(file).toString();
+                        ImageLoader.getInstance().displayImage(Uri.decode(u), iv);
+                    } catch (Exception e) {
+                        iv.setVisibility(View.GONE);
+                    }
+                else {
                     iv.setVisibility(View.GONE);
                 }
-            else {
-                iv.setVisibility(View.GONE);
-            }}
-
-
+            }
         } else {
             iv.setVisibility(View.GONE);
         }
-
 
         findViewById(R.id.imageView8).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -370,98 +358,81 @@ public class NewsActivity extends Activity {
         });
     }
 
-
-
+    // show each related news item
     public void setRelated(final Article art,View v, double d){
-    ((TextView)v.findViewById(R.id.textView2)).
-
-    setText(art.getHeadline()
-    );
-
+        ((TextView)v.findViewById(R.id.textView2)).
+        setText(art.getHeadline());
         ((TextView)v.findViewById(R.id.source)).
+        setText("From "+art.getSource());
+        String time = art.getDatetime().split("T")[0];
+        ((TextView)v.findViewById(R.id.textView3)).
+        setText(time);
 
-                setText("From "
-                        +art.getSource()
-                );
+        final ImageView iv = ((ImageView) v.findViewById(R.id.imageView2));
+        iv.setTag(art);
 
-    String time = art.getDatetime().split("T")[0];
-    ((TextView)v.findViewById(R.id.textView3)).
+        if(art.getImage()!=null&&!"".equals(art.getImage()))
+        {
+            if ("Sina".equals(art.getSource())) {
+                iv.setImageResource(R.drawable.sina);
+            } else {
+                File file = imageExsit(Base64.encodeToString(art.getImage().getBytes(), Base64.DEFAULT) + ".jpg");
+                //ImageLoader.getInstance().displayImage(Uri.fromFile(file).toString(), iv);
+                if (file != null)
+                    try {
+                        //iv.setImageBitmap(BitmapFactory.decodeStream(new FileInputStream(file)));
+                        String u = Uri.fromFile(file).toString();
+                        ImageLoader.getInstance().displayImage(Uri.decode(u), iv);
+                    } catch (Exception e) {
+                        setDefaultPic(iv);
+                    }
+                else {
+                    setDefaultPic(iv);
 
-    setText(time);
+                    //Bitmap b = ImageLoader.getInstance().loadImageSync(art.getImage());
+                    ImageLoader.getInstance().displayImage(art.getImage(), iv, new ImageLoadingListener() {
+                    @Override
+                    public void onLoadingStarted(String imageUri, View view) {
 
-    final ImageView iv = ((ImageView) v.findViewById(R.id.imageView2));
-    iv.setTag(art);
+                    }
 
-    if(art.getImage()!=null&&!"".
+                    @Override
+                    public void onLoadingFailed(String imageUri, View view, FailReason failReason) {
 
-    equals(art.getImage()
+                    }
 
-    ))
+                    @Override
+                    public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
+                        saveImage(loadedImage,
+                                Base64.encodeToString(imageUri.getBytes(), Base64.DEFAULT) + ".jpg");
+                    }
 
-    {
-        if ("Sina".equals(art.getSource())) {
-            iv.setImageResource(R.drawable.sina);
-        } else {
+                    @Override
+                    public void onLoadingCancelled(String imageUri, View view) {
 
-        File file = imageExsit(Base64.encodeToString(art.getImage().getBytes(), Base64.DEFAULT) + ".jpg");
-        //ImageLoader.getInstance().displayImage(Uri.fromFile(file).toString(), iv);
-        if (file != null)
-            try {
-                //iv.setImageBitmap(BitmapFactory.decodeStream(new FileInputStream(file)));
-                String u = Uri.fromFile(file).toString();
-                ImageLoader.getInstance().displayImage(Uri.decode(u), iv);
-            } catch (Exception e) {
-                setDefaultPic(iv);
-            }
-        else {
-            setDefaultPic(iv);
+                    }
+                });
+            }}
 
-            //Bitmap b = ImageLoader.getInstance().loadImageSync(art.getImage());
-            ImageLoader.getInstance().displayImage(art.getImage(), iv, new ImageLoadingListener() {
+            v.setOnClickListener(new View.OnClickListener() {
                 @Override
-                public void onLoadingStarted(String imageUri, View view) {
-
-                }
-
-                @Override
-                public void onLoadingFailed(String imageUri, View view, FailReason failReason) {
-
-                }
-
-                @Override
-                public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
-                    saveImage(loadedImage,
-                            Base64.encodeToString(imageUri.getBytes(), Base64.DEFAULT) + ".jpg");
-                }
-
-                @Override
-                public void onLoadingCancelled(String imageUri, View view) {
-
+                public void onClick(View v) {
+                    Intent i = new Intent(NewsActivity.this, NewsActivity.class);
+                    i.putExtra("article", art);
+                    i.putExtra("original", original);
+                    NewsActivity.this.startActivity(i);
                 }
             });
-        }}
-
-        v.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent i = new Intent(NewsActivity.this, NewsActivity.class);
-                i.putExtra("article", art);
-                i.putExtra("original", original);
-                NewsActivity.this.startActivity(i);
-            }
-        });
-
-
-
+        }
+        else
+        {
+            setDefaultPic(iv);
+        }
     }
 
-    else
-
-    {
-        setDefaultPic(iv);
-    }
-}
-
+    /*
+    * If news has no pic, show default pic
+    * */
     public void setDefaultPic(ImageView iv) {
         Article art = (Article) iv.getTag();
         String source = art.getSource();
@@ -477,10 +448,11 @@ public class NewsActivity extends Activity {
         }else {
             iv.setImageResource(R.drawable.sample);
         }
-
-
     }
 
+    /*
+    * judge if file exists in local
+    * */
     public File imageExsit(String fname) {
         String root = Environment.getExternalStorageDirectory().toString();
         File myDir = new File(root + "/financial_eye");
@@ -500,6 +472,9 @@ public class NewsActivity extends Activity {
         return null;
     }
 
+    /*
+    * save pic from internet to local
+    * */
     public String saveImage(Bitmap finalBitmap, String fname) {
 
         String root = Environment.getExternalStorageDirectory().toString();

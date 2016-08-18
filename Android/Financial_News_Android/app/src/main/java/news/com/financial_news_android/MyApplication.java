@@ -8,7 +8,9 @@ import com.raizlabs.android.dbflow.config.FlowConfig;
 import com.raizlabs.android.dbflow.config.FlowManager;
 
 /**
- * Created by ping on 2016/6/30.
+ * One App only has one Application class which init some library
+ *
+ * Created by Ping He
  */
 public class MyApplication extends Application {
 
@@ -16,8 +18,10 @@ public class MyApplication extends Application {
     public void onCreate() {
         super.onCreate();
 
+        // init FlowManager
         FlowManager.init(new FlowConfig.Builder(this).build());
 
+        // init ImageLoader
         ImageLoaderConfiguration c = new ImageLoaderConfiguration.Builder(this).build();
         ImageLoader.getInstance().init(c);
 

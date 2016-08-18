@@ -50,195 +50,210 @@ import java.util.List;
 
 import cz.msebera.android.httpclient.Header;
 
+/**
+ * A page showing what users like and collect
+ *
+ * Created by Ping He
+ */
 public class FavsActivity extends Activity {
 
-        @Override
-        protected void onCreate(Bundle savedInstanceState) {
-            super.onCreate(savedInstanceState);
-            setContentView(R.layout.activity_favs);
+    // a list stored articles
+    List<Article> articles = null;
 
-        }
-       ListView lv = null;
+    // a listview holding article data
+    ListView lv = null;
 
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_favs);
 
-        @Override
-        public void onStart() {
-            super.onStart();
+    }
 
-            lv =  (ListView) findViewById(R.id.listView);
+    @Override
+    public void onStart() {
+        super.onStart();
 
-            lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                @Override
-                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                    Intent i = new Intent(parent.getContext(), NewsActivity.class);
-                    i.putExtra("article", articles.get(position));
-                    parent.getContext().startActivity(i);
-                }
-            });
+        // the listview showing specific data
+        lv =  (ListView) findViewById(R.id.listView);
 
+        // attach listener to listview
+        lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
-        }
+                // jump to the page showing specific news content
+                Intent i = new Intent(parent.getContext(), NewsActivity.class);
+                i.putExtra("article", articles.get(position));
+                parent.getContext().startActivity(i);
+            }
+        });
+    }
 
     @Override
     protected void onResume() {
         super.onResume();
 
+        // gather data from database
         articles = SQLite.select().from(Article.class).where(Article_Table.isFav.is("1")).orderBy(Article_Table.datetime, false).queryList();
 
+        // show the data
         if (articles != null && articles.size() > 0) {
-            lv.setAdapter(new UsersAdapter(FavsActivity.this, articles));
+            lv.setAdapter(new FavsAdapter(FavsActivity.this, articles));
         }
     }
 
     @Override
-        public void onStop() {
-            super.onStop();
+    public void onStop() {
+        super.onStop();
+    }
 
-
+    /*
+    * A data adapter used for loading list data
+    * */
+    public class FavsAdapter extends ArrayAdapter<Article> {
+        public FavsAdapter(Context context, List<Article> users) {
+            super(context, 0, users);
         }
 
+        @Override
+        public View getView(final int position, View convertView, ViewGroup parent) {
+            View v = convertView;
 
+            if (v == null) {
+                // inflate layout for each item of list
+                v = LayoutInflater.from(FavsActivity.this).inflate(R.layout.listview_item_main, null);
+            }
 
-            List<Article> articles = null;
+            // get data for each item list
+            Article art = getItem(position);
+            ((TextView)v.findViewById(R.id.textView2)).setText(art.getHeadline());
+            String time = art.getDatetime().split("T")[0];
+            ((TextView)v.findViewById(R.id.textView3)).setText(time);
 
+            final ImageView iv = ((ImageView)v.findViewById(R.id.imageView2));
+            iv.setTag(art);
 
-            public class UsersAdapter extends ArrayAdapter<Article> {
-                public UsersAdapter(Context context, List<Article> users) {
-                    super(context, 0, users);
-                }
-
-                @Override
-                public View getView(final int position, View convertView, ViewGroup parent) {
-                    View v = convertView;
-
-                    if (v == null) {
-                        v = LayoutInflater.from(FavsActivity.this).inflate(R.layout.listview_item_main, null);
-                    }
-
-                    Article art = getItem(position);
-                    ((TextView)v.findViewById(R.id.textView2)).setText(art.getHeadline());
-                    String time = art.getDatetime().split("T")[0];
-                    ((TextView)v.findViewById(R.id.textView3)).setText(time);
-
-                    final ImageView iv = ((ImageView)v.findViewById(R.id.imageView2));
-                    iv.setTag(art);
-
-                    if ("Sina".equals(art.getSource())) {
-                        iv.setImageResource(R.drawable.sina);
-                    } else {
-
-                    if (art.getImage() != null && !"".equals(art.getImage())) {
-
-                        File file = imageExsit(Base64.encodeToString(art.getImage().getBytes(), Base64.DEFAULT) + ".jpg");
-                        //ImageLoader.getInstance().displayImage(Uri.fromFile(file).toString(), iv);
-                        if (file != null)
-                            try {
-                                //iv.setImageBitmap(BitmapFactory.decodeStream(new FileInputStream(file)));
-                                String u = Uri.fromFile(file).toString();
-                                ImageLoader.getInstance().displayImage(Uri.decode(u), iv);
-                            } catch (Exception e) {
-                                setDefaultPic(iv);
-                            }
-                        else {
+            // show news pic
+            if ("Sina".equals(art.getSource())) {
+                iv.setImageResource(R.drawable.sina);
+            } else {
+                if (art.getImage() != null && !"".equals(art.getImage())) {
+                    File file = imageExsit(Base64.encodeToString(art.getImage().getBytes(), Base64.DEFAULT) + ".jpg");
+                    //ImageLoader.getInstance().displayImage(Uri.fromFile(file).toString(), iv);
+                    if (file != null) {
+                        try {
+                            //iv.setImageBitmap(BitmapFactory.decodeStream(new FileInputStream(file)));
+                            String u = Uri.fromFile(file).toString();
+                            ImageLoader.getInstance().displayImage(Uri.decode(u), iv);
+                        } catch (Exception e) {
                             setDefaultPic(iv);
-
-                            //Bitmap b = ImageLoader.getInstance().loadImageSync(art.getImage());
-                            ImageLoader.getInstance().displayImage(art.getImage(), iv, new ImageLoadingListener() {
-                                @Override
-                                public void onLoadingStarted(String imageUri, View view) {
-
-                                }
-
-                                @Override
-                                public void onLoadingFailed(String imageUri, View view, FailReason failReason) {
-
-                                }
-
-                                @Override
-                                public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
-                                    saveImage(loadedImage,
-                                            Base64.encodeToString(imageUri.getBytes(), Base64.DEFAULT) + ".jpg");
-                                }
-
-                                @Override
-                                public void onLoadingCancelled(String imageUri, View view) {
-
-                                }
-                            });
                         }
-
-
                     } else {
                         setDefaultPic(iv);
-                    }}
 
-                    return v;
-                }
-            }
+                        //Bitmap b = ImageLoader.getInstance().loadImageSync(art.getImage());
+                        ImageLoader.getInstance().displayImage(art.getImage(), iv, new ImageLoadingListener() {
+                            @Override
+                            public void onLoadingStarted(String imageUri, View view) {
 
-            public void setDefaultPic(ImageView iv) {
-                Article art = (Article) iv.getTag();
-                String source = art.getSource();
+                            }
 
-                if ("The New York Times".equals(art.getSource())) {
-                    iv.setImageResource(R.drawable.nytime);
-                }else if ("BBC".equals(art.getSource())) {
-                    iv.setImageResource(R.drawable.bbc);
-                }else if ("ChinaDaily".equals(art.getSource())) {
-                    iv.setImageResource(R.drawable.chinadaily);
-                }else if ("Reuters".equals(art.getSource())) {
-                    iv.setImageResource(R.drawable.reuters);
-                }else {
-                    iv.setImageResource(R.drawable.sample);
-                }
+                            @Override
+                            public void onLoadingFailed(String imageUri, View view, FailReason failReason) {
 
+                            }
 
-            }
+                            @Override
+                            public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
+                                saveImage(loadedImage,
+                                        Base64.encodeToString(imageUri.getBytes(), Base64.DEFAULT) + ".jpg");
+                            }
 
-            public File imageExsit(String fname) {
-                String root = Environment.getExternalStorageDirectory().toString();
-                File myDir = new File(root + "/financial_eye");
-                if (!myDir.exists()) {
-                    myDir.mkdirs();
-                }
+                            @Override
+                            public void onLoadingCancelled(String imageUri, View view) {
 
-                File file = new File(myDir, fname);
-                if (file.exists()) {
-                    if (file.length() == 0) {
-                        file.delete();
-                        return null;
+                            }
+                        });
                     }
-                    return file;
-                }
 
+
+                } else {
+                    setDefaultPic(iv);
+                }
+            }
+
+            return v;
+        }
+    }
+    /*
+    * If news no pic, just load the default pic
+    * */
+    public void setDefaultPic(ImageView iv) {
+        Article art = (Article) iv.getTag();
+        String source = art.getSource();
+
+        if ("The New York Times".equals(art.getSource())) {
+            iv.setImageResource(R.drawable.nytime);
+        }else if ("BBC".equals(art.getSource())) {
+            iv.setImageResource(R.drawable.bbc);
+        }else if ("ChinaDaily".equals(art.getSource())) {
+            iv.setImageResource(R.drawable.chinadaily);
+        }else if ("Reuters".equals(art.getSource())) {
+            iv.setImageResource(R.drawable.reuters);
+        }else {
+            iv.setImageResource(R.drawable.sample);
+        }
+
+    }
+
+    /*
+    * judge if file exists in local
+    * */
+    public File imageExsit(String fname) {
+        String root = Environment.getExternalStorageDirectory().toString();
+        File myDir = new File(root + "/financial_eye");
+        if (!myDir.exists()) {
+            myDir.mkdirs();
+        }
+
+        File file = new File(myDir, fname);
+        if (file.exists()) {
+            if (file.length() == 0) {
+                file.delete();
                 return null;
             }
+            return file;
+        }
 
-            public String saveImage(Bitmap finalBitmap, String fname) {
+        return null;
+    }
 
-                String root = Environment.getExternalStorageDirectory().toString();
-                File myDir = new File(root + "/financial_eye");
-                if (!myDir.exists()) {
-                    myDir.mkdirs();
-                }
+    /*
+    * save pic from internet to local
+    * */
+    public String saveImage(Bitmap finalBitmap, String fname) {
 
-                File file = new File(myDir, fname);
-                if (file.exists())
-                    return file.getAbsolutePath();
+        String root = Environment.getExternalStorageDirectory().toString();
+        File myDir = new File(root + "/financial_eye");
+        if (!myDir.exists()) {
+            myDir.mkdirs();
+        }
 
-                try {
-                    FileOutputStream out = new FileOutputStream(file);
-                    finalBitmap.compress(Bitmap.CompressFormat.JPEG, 90, out);
-                    out.flush();
-                    out.close();
+        File file = new File(myDir, fname);
+        if (file.exists())
+            return file.getAbsolutePath();
 
-                } catch (Exception e) {
-                    return "";
-                }
+        try {
+            FileOutputStream out = new FileOutputStream(file);
+            finalBitmap.compress(Bitmap.CompressFormat.JPEG, 90, out);
+            out.flush();
+            out.close();
 
-                return file.getAbsolutePath();
-            }
+        } catch (Exception e) {
+            return "";
+        }
 
-
-
+        return file.getAbsolutePath();
+    }
 }
