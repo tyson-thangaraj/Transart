@@ -11,7 +11,7 @@ What we used:
 * [Django Rest Framework](http://www.django-rest-framework.org)
 * [PostgreSql](https://www.postgresql.org)
 
-＊ ### accounts
+### ＊ accounts
 User login / register
 
 ＊ ### articles
