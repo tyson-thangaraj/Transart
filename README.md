@@ -24,6 +24,10 @@ This app is used to fetch news througg Rss feeds and save them to the database.
 This app is used to calculate the similarity of news.
 
 #Android -- Front-End
+What we used:
+* [Android](https://developer.android.com/index.html)
+* [SQLite](https://developer.android.com/training/basics/data-storage/index.html)
+* [Android Studio](https://developer.android.com/studio/index.html)
 
 # How to use
 Clone the whole project using the following commands:
