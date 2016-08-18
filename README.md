@@ -2,6 +2,7 @@
 Fan Xiangting; He Ping; Song Youtong; Wang Jiandong; Zhao Zeyu
 
 There are two parts of this project: back-end and front-end.
+Financial Eye’s goal is to recommend news articles published in different news websites via the topics of BBC news that users are browsing. The key feature of our system is to show different visions based on the same story. 
 
 #Financial_Eye -- Back-End
 
