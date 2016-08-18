@@ -11,13 +11,13 @@ What we used:
 * [Django Rest Framework](http://www.django-rest-framework.org)
 * [PostgreSql](https://www.postgresql.org)
 
-### ＊ accounts
+### 1. accounts
 User login / register
 
-### ＊ articles
+### 2. articles
 This app is used to fetch news throug Rss feeds and save them to the database.
 
-### ＊ articlematch
+### 3. articlematch
 This app is used to calculate the similarity of news.
 
 #Android -- Front-End
