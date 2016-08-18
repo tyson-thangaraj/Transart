@@ -9,7 +9,7 @@ What we used:
 * [Python](https://www.python.org)
 * [Django](https://www.djangoproject.com)
 * [Django Rest Framework](http://www.django-rest-framework.org)
-
+* [PostgreSql](https://www.postgresql.org)
 
 #Android -- Front-End
 
