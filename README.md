@@ -1,5 +1,9 @@
 # Transart-Team
 Fan Xiangting; He Ping; Song Youtong; Wang Jiandong; Zhao Zeyu
+
+There are two parts of this project: back-end and front-end
+#Financial Eye
+
 # code update
 git clone git@github.com:ucd-nlmsc-teamproject/Transart.git
 git pull
